@@ -16,6 +16,9 @@ def __getattr__(name):
     if name == 'ProviderFactory':
         from .factory import ProviderFactory
         return ProviderFactory
+    if name == 'LoadBalancer':
+        from .load_balancer import LoadBalancer
+        return LoadBalancer
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
-__all__ = ['BaseProvider', 'GeminiProvider', 'OpenRouterProvider', 'OpenAIProvider', 'ProviderFactory']
+__all__ = ['BaseProvider', 'GeminiProvider', 'OpenRouterProvider', 'OpenAIProvider', 'ProviderFactory', 'LoadBalancer']
