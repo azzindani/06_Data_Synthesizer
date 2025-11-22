@@ -17,9 +17,16 @@ def __getattr__(name):
     if name == 'OutputManager':
         from .output_handler import OutputManager
         return OutputManager
+    if name == 'InstanceCoordinator':
+        from .coordinator import InstanceCoordinator
+        return InstanceCoordinator
+    if name == 'WorkDistributor':
+        from .coordinator import WorkDistributor
+        return WorkDistributor
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 __all__ = [
     'retry_with_backoff', 'extract_json', 'parse_json_safely',
-    'CostTracker', 'NotificationManager', 'LocalOutputHandler', 'OutputManager'
+    'CostTracker', 'NotificationManager', 'LocalOutputHandler', 'OutputManager',
+    'InstanceCoordinator', 'WorkDistributor'
 ]
