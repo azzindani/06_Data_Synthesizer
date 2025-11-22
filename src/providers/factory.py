@@ -8,6 +8,7 @@ from .base import (
 )
 from .gemini import GeminiProvider
 from .openrouter import OpenRouterProvider
+from .openai_provider import OpenAIProvider
 from ..core.logger import get_logger
 
 
@@ -15,6 +16,7 @@ from ..core.logger import get_logger
 PROVIDER_CLASSES = {
     'gemini': GeminiProvider,
     'openrouter': OpenRouterProvider,
+    'openai': OpenAIProvider,
 }
 
 

@@ -10,9 +10,12 @@ def __getattr__(name):
     if name == 'OpenRouterProvider':
         from .openrouter import OpenRouterProvider
         return OpenRouterProvider
+    if name == 'OpenAIProvider':
+        from .openai_provider import OpenAIProvider
+        return OpenAIProvider
     if name == 'ProviderFactory':
         from .factory import ProviderFactory
         return ProviderFactory
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
-__all__ = ['BaseProvider', 'GeminiProvider', 'OpenRouterProvider', 'ProviderFactory']
+__all__ = ['BaseProvider', 'GeminiProvider', 'OpenRouterProvider', 'OpenAIProvider', 'ProviderFactory']
