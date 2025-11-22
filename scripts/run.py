@@ -11,6 +11,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.core.config import load_config
 from src.core.logger import setup_root_logger
 from src.synthesizers.qa_synthesis import QASynthesizer
+from src.synthesizers.deep_thinking import DeepThinkingSynthesizer
+from src.synthesizers.corpus_generator import CorpusGenerator
 
 
 def main():
@@ -103,13 +105,9 @@ def main():
     if synthesis_type == 'qa':
         synthesizer = QASynthesizer(config)
     elif synthesis_type == 'deep_thinking':
-        # TODO: Implement DeepThinkingSynthesizer
-        logger.error("Deep thinking synthesizer not yet implemented")
-        sys.exit(1)
+        synthesizer = DeepThinkingSynthesizer(config)
     elif synthesis_type == 'corpus':
-        # TODO: Implement CorpusGenerator
-        logger.error("Corpus generator not yet implemented")
-        sys.exit(1)
+        synthesizer = CorpusGenerator(config)
     else:
         logger.error(f"Unknown synthesis type: {synthesis_type}")
         sys.exit(1)
