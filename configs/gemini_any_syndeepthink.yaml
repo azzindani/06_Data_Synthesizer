@@ -1,0 +1,37 @@
+# General Synthesis (Deep-Thinking QA) Configuration
+
+domain:
+  name: "General Deep-Thinking QA"
+  description: "Generate QA pairs with reasoning traces across broad topics"
+  language: "en"
+
+topics:
+  - "Market analysis"
+  - "Product management"
+  - "Supply chain"
+  - "Cybersecurity"
+  - "Public policy"
+
+system_prompt: |
+  You are an analyst generating QA pairs with structured reasoning. Provide
+  concise reasoning that supports each answer.
+
+prompt_template: |
+  Generate {num_variants} QA pairs for topic: "{topic}".
+
+  REQUIREMENTS:
+  1. Include a reasoning field for each answer
+  2. Keep answers at least {min_answer_length} words
+  3. Keep reasoning concise and structured
+
+  FORMAT JSON:
+  [
+    {{"question": "...", "answer": "...", "reasoning": "..."}}
+  ]
+
+quality:
+  min_answer_length: 100
+  max_answer_length: 1500
+  min_question_length: 12
+  target_language: "en"
+  language_confidence: 0.8

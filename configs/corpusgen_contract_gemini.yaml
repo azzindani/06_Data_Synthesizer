@@ -1,0 +1,42 @@
+# Contract Corpus Generation (Gemini) Configuration
+
+domain:
+  name: "Contract Corpus (Gemini)"
+  description: "Generate contract documents for corpus creation"
+  language: "en"
+  min_document_length: 2000
+
+taxonomy:
+  document_types:
+    - "Non-Disclosure Agreement (NDA)"
+    - "Master Services Agreement (MSA)"
+    - "Software License Agreement (EULA)"
+    - "Service Level Agreement (SLA)"
+  industries:
+    - "Technology"
+    - "Healthcare"
+    - "Financial Services"
+  jurisdictions:
+    - "US Law"
+    - "UK Law"
+
+system_prompt: |
+  You are a senior contract attorney drafting realistic commercial agreements.
+
+prompt_template: |
+  Generate a complete {document_type} for the {industry} industry.
+
+  CONTEXT:
+  - Jurisdiction: {jurisdiction}
+  - Minimum length: {min_document_length} words
+
+  REQUIREMENTS:
+  1. Include standard sections for this contract type
+  2. Use realistic party names and terms
+  3. Maintain formal legal style
+
+  Produce the full contract now.
+
+quality:
+  min_document_length: 2000
+  target_language: "en"

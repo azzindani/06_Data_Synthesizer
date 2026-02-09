@@ -1,0 +1,45 @@
+# Legal Corpus Generation (Gemini) Configuration
+
+domain:
+  name: "Legal Corpus (Gemini)"
+  description: "Generate legal documents for corpus creation"
+  language: "en"
+  min_document_length: 1800
+
+taxonomy:
+  document_types:
+    - "Policy Brief"
+    - "Regulatory Summary"
+    - "Legal Analysis"
+    - "Compliance Checklist"
+  topics:
+    - "Corporate law"
+    - "Labor law"
+    - "Privacy law"
+    - "International trade"
+  jurisdictions:
+    - "US Law"
+    - "EU Law"
+    - "UK Law"
+
+system_prompt: |
+  You are a legal writer producing structured legal documents. Use accurate
+  terminology, formal tone, and clear sectioning.
+
+prompt_template: |
+  Generate a complete {document_type} on {topic}.
+
+  CONTEXT:
+  - Jurisdiction: {jurisdiction}
+  - Minimum length: {min_document_length} words
+
+  REQUIREMENTS:
+  1. Use formal legal language
+  2. Include section headings
+  3. Provide realistic legal context
+
+  Produce the full document now.
+
+quality:
+  min_document_length: 1800
+  target_language: "en"

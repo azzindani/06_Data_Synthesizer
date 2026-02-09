@@ -1,0 +1,36 @@
+# General Synthesis (Prompt-Only) Configuration
+
+domain:
+  name: "General Synthesis"
+  description: "Prompt-only synthesis for broad topics"
+  language: "en"
+
+topics:
+  - "Technology trends"
+  - "Business strategy"
+  - "Healthcare operations"
+  - "Education policy"
+  - "Climate initiatives"
+
+system_prompt: |
+  You are a knowledgeable assistant generating concise, factual content.
+
+prompt_template: |
+  Generate {num_variants} QA pairs for topic: "{topic}".
+
+  REQUIREMENTS:
+  1. Provide clear, direct answers
+  2. Keep each answer at least {min_answer_length} words
+  3. Avoid speculative claims
+
+  FORMAT JSON:
+  [
+    {{"question": "...", "answer": "..."}}
+  ]
+
+quality:
+  min_answer_length: 80
+  max_answer_length: 1200
+  min_question_length: 10
+  target_language: "en"
+  language_confidence: 0.8

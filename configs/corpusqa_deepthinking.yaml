@@ -1,0 +1,37 @@
+# Corpus QA Deep-Thinking Domain Configuration
+
+domain:
+  name: "Corpus QA Deep-Thinking"
+  description: "Generate QA pairs with reasoning grounded in corpus context"
+  language: "en"
+
+topics:
+  - "Legal compliance"
+  - "Contract interpretation"
+  - "Risk assessment"
+  - "Regulatory changes"
+
+system_prompt: |
+  You are a subject-matter expert generating QA pairs that include concise reasoning.
+  Use the provided context when available. If no context is provided, rely on
+  general domain knowledge and clearly structured reasoning.
+
+prompt_template: |
+  Generate {num_variants} QA pairs for the topic: "{topic}".
+
+  REQUIREMENTS:
+  1. Provide concise reasoning steps (deep-thinking)
+  2. Answers must be at least {min_answer_length} words
+  3. Keep questions and answers domain-accurate
+
+  FORMAT JSON:
+  [
+    {{"question": "...", "answer": "...", "reasoning": "..."}}
+  ]
+
+quality:
+  min_answer_length: 120
+  max_answer_length: 1500
+  min_question_length: 12
+  target_language: "en"
+  language_confidence: 0.8
