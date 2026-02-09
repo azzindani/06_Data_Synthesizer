@@ -1,0 +1,47 @@
+# Legal Corpus Generation Domain Configuration
+
+domain:
+  name: "Legal Corpus Generation"
+  description: "Generate legal documents across multiple topics and jurisdictions"
+  language: "en"
+  min_document_length: 1500
+
+taxonomy:
+  document_types:
+    - "Legal Memorandum"
+    - "Case Brief"
+    - "Legal Opinion"
+    - "Policy Analysis"
+    - "Compliance Guide"
+  topics:
+    - "Contract Law"
+    - "Tort Law"
+    - "Employment Law"
+    - "Data Privacy"
+    - "Regulatory Compliance"
+  jurisdictions:
+    - "US Federal & State Law"
+    - "UK Law"
+    - "EU Law"
+
+system_prompt: |
+  You are a legal analyst who writes clear, well-structured legal documents.
+  Focus on accuracy, proper terminology, and real-world context.
+
+prompt_template: |
+  Generate a complete {document_type} about {topic}.
+
+  CONTEXT:
+  - Jurisdiction: {jurisdiction}
+  - Target length: {min_document_length} words minimum
+
+  REQUIREMENTS:
+  1. Provide realistic legal context and terminology
+  2. Use structured sections and headings
+  3. Keep the tone professional and factual
+
+  Produce the full document now.
+
+quality:
+  min_document_length: 1500
+  target_language: "en"

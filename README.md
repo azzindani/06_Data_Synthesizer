@@ -123,7 +123,7 @@ data_synthesizer/
 │   │   ├── base.py              # Abstract base provider
 │   │   ├── gemini.py            # Google Gemini API
 │   │   ├── openrouter.py        # OpenRouter API
-│   │   ├── openai.py            # OpenAI API
+│   │   ├── openai_provider.py   # OpenAI API
 │   │   └── factory.py           # Provider factory with failover
 │   │
 │   ├── synthesizers/            # Synthesis engines
@@ -139,22 +139,17 @@ data_synthesizer/
 │   │   ├── quality.py           # Quality scoring
 │   │   └── pipeline.py          # Validation pipeline
 │   │
-│   ├── outputs/                 # Output handlers
+│   ├── utils/                   # Utilities
 │   │   ├── __init__.py
-│   │   ├── huggingface.py       # HuggingFace Hub upload
-│   │   ├── local.py             # Local file storage
-│   │   └── base.py              # Abstract output handler
-│   │
-│   └── utils/                   # Utilities
-│       ├── __init__.py
-│       ├── retry.py             # Retry with backoff
-│       ├── json_parser.py       # Robust JSON extraction
-│       └── text_cleaner.py      # Text preprocessing
+│   │   ├── output_handler.py    # Local + HuggingFace output handlers
+│   │   ├── retry.py             # Retry with backoff
+│   │   ├── json_parser.py       # Robust JSON extraction
+│   │   └── text_cleaner.py      # Text preprocessing
 │
-├── notebooks/                   # Jupyter notebook versions
+├── notebooks/                   # Jupyter notebooks + index
+│   ├── README.md                # Notebook catalog + workflows
 │   ├── qa_synthesis.ipynb
-│   ├── deep_thinking.ipynb
-│   └── corpus_generator.ipynb
+│   └── examples/                # Production run templates
 │
 ├── configs/                     # Domain-specific configs
 │   ├── indonesian_legal.yaml
@@ -403,6 +398,9 @@ synthesizer.show_progress()
 # Continue synthesis
 synthesizer.continue_synthesis()
 ```
+
+See `notebooks/README.md` for a catalog of the example notebooks and production templates, including
+source-backed vs. no-source workflow guidance.
 
 ---
 
