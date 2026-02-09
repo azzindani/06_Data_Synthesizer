@@ -1,37 +1,103 @@
-# Corpus QA Deep-Thinking Domain Configuration
+# Corpus QA (Iterative Deep Thinking) - mirrored from corpusqa-syndeepthink-gemini-prodv1.ipynb
 
 domain:
-  name: "Corpus QA Deep-Thinking"
-  description: "Generate QA pairs with reasoning grounded in corpus context"
-  language: "en"
+  name: "Indonesian Legal Corpus Analysis"
+  target_language: "id"
+  num_variants: 2
+  approach: "iterative_thinking"
 
-topics:
-  - "Legal compliance"
-  - "Contract interpretation"
-  - "Risk assessment"
-  - "Regulatory changes"
+  max_text_length: 15000
+  min_text_length: 200
+  chunk_method: "sentences"
+  chunk_size: 30
+  overlap: 1
+  min_chunk_length: 100
 
-system_prompt: |
-  You are a subject-matter expert generating QA pairs that include concise reasoning.
-  Use the provided context when available. If no context is provided, rely on
-  general domain knowledge and clearly structured reasoning.
+prompts:
+  system_prompts:
+    simple: "Anda adalah asisten yang membuat pertanyaan-jawaban berdasarkan teks."
+    deep_thinking: "Anda adalah asisten yang membuat pertanyaan dengan proses analisis step-by-step."
+    iterative_thinking: "Anda adalah asisten yang membuat pertanyaan dengan proses berpikir bertahap yang detail."
 
-prompt_template: |
-  Generate {num_variants} QA pairs for the topic: "{topic}".
+  simple_prompts:
+    question_generation: |
+      Buat {num_variants} pertanyaan berbeda tentang teks ini:
 
-  REQUIREMENTS:
-  1. Provide concise reasoning steps (deep-thinking)
-  2. Answers must be at least {min_answer_length} words
-  3. Keep questions and answers domain-accurate
+      {text_preview}
 
-  FORMAT JSON:
-  [
-    {{"question": "...", "answer": "...", "reasoning": "..."}}
-  ]
+      Format JSON sederhana:
+      [
+        {"question": "pertanyaan 1"},
+        {"question": "pertanyaan 2"}
+      ]
 
-quality:
-  min_answer_length: 120
-  max_answer_length: 1500
-  min_question_length: 12
-  target_language: "en"
-  language_confidence: 0.8
+    answer_generation: |
+      Jawab pertanyaan ini berdasarkan teks:
+
+      TEKS: {text_preview}
+      PERTANYAAN: {question}
+
+      Jawaban (200-400 kata):
+
+    thinking_generation: |
+      Buat proses analisis step-by-step untuk menjawab pertanyaan ini:
+
+      TEKS: {text_preview}
+      PERTANYAAN: {question}
+
+      Proses analisis (minimal 300 kata):
+      1. Analisis awal:
+      2. Identifikasi poin utama:
+      3. Pertimbangan berbagai aspek:
+      4. Evaluasi evidence:
+      5. Kesimpulan:
+
+  combined_prompts:
+    simple: |
+      Buat {num_variants} pertanyaan-jawaban sederhana tentang teks ini:
+
+      {full_text}
+
+      Format:
+      [
+        {"question": "pertanyaan 1", "answer": "jawaban 1"},
+        {"question": "pertanyaan 2", "answer": "jawaban 2"}
+      ]
+
+    deep_thinking: |
+      Buat {num_variants} pertanyaan dengan analisis singkat:
+
+      {full_text}
+
+      Format:
+      [
+        {"question": "pertanyaan 1", "thinking": "analisis step-by-step minimal 200 kata", "answer": "jawaban 1"},
+        {"question": "pertanyaan 2", "thinking": "proses berpikir minimal 200 kata", "answer": "jawaban 2"}
+      ]
+
+    iterative_thinking: |
+      Buat {num_variants} pertanyaan dengan proses berpikir detail:
+
+      {full_text}
+
+      Format:
+      [
+        {"question": "pertanyaan 1", "thinking": "Step 1: Analisis... Step 2: Evaluasi... Step 3: Sintesis... (minimal 400 kata)", "answer": "jawaban singkat 1"},
+        {"question": "pertanyaan 2", "thinking": "Langkah 1: Pemahaman... Langkah 2: Assessment... Langkah 3: Konklusi... (minimal 400 kata)", "answer": "jawaban langsung 2"}
+      ]
+
+notebook_config:
+  source_dataset: "joelniklaus/legal_case_document_summarization"
+  output_repository: "Azzindani/Legal_Corpus_QA_SynDeepThink"
+  corpus_column: "judgement"
+  batch_size: 50
+  model_name: "gemini-2.5-flash"
+  temperature: 0.8
+  base_tokens_per_variant: 5000
+  min_question_length: 20
+  min_answer_length: 50
+  max_question_length: 3000
+  max_answer_length: 6000
+  target_language_confidence: 0.5
+  skip_processed_rows: true
+  progress_file: "synthesis_progress.json"

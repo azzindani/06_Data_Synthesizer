@@ -270,36 +270,37 @@ class TestLocalOutputHandler:
 class TestDomainConfigs:
     """Tests for domain configuration templates."""
 
-    def test_indonesian_legal_config(self):
-        """Test Indonesian legal config loading."""
+    def test_legal_qa_gemini_config(self):
+        """Test legal QA config loading."""
         import yaml
 
-        config_path = "configs/indonesian_legal.yaml"
+        config_path = "configs/legal_qa_gemini.yaml"
         assert os.path.exists(config_path)
 
         with open(config_path) as f:
             config = yaml.safe_load(f)
 
-        assert config['domain']['name'] == "Indonesian Legal System"
-        assert config['domain']['language'] == "id"
-        assert len(config['topics']) > 0
-        assert 'system_prompt' in config
-        assert 'prompt_template' in config
+        assert config['domain']['name'] == "Indonesian Legal QA Augmentation"
+        assert config['domain']['target_language'] == "id"
+        assert config['domain']['num_variants'] == 5
+        assert 'prompts' in config
+        assert 'prompt_template' in config['prompts']
 
-    def test_contract_generation_config(self):
-        """Test contract generation config loading."""
+    def test_corpusgen_contract_gemini_config(self):
+        """Test contract corpus config loading."""
         import yaml
 
-        config_path = "configs/contract_generation.yaml"
+        config_path = "configs/corpusgen_contract_gemini.yaml"
         assert os.path.exists(config_path)
 
         with open(config_path) as f:
             config = yaml.safe_load(f)
 
-        assert config['domain']['name'] == "Legal Contract Corpus"
-        assert 'taxonomy' in config
-        assert len(config['taxonomy']['document_types']) > 0
-        assert len(config['taxonomy']['industries']) > 0
+        assert config['domain']['name'] == "Legal Contract & Agreement Corpus"
+        assert config['domain']['generation_mode'] == "full_contract"
+        assert 'contract_taxonomy' in config
+        assert len(config['contract_taxonomy']['agreement_types']) > 0
+        assert len(config['contract_taxonomy']['industries']) > 0
 
 
 if __name__ == "__main__":

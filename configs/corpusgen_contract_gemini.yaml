@@ -1,42 +1,191 @@
-# Contract Corpus Generation (Gemini) Configuration
+# Contract Corpus Generation (Gemini) - mirrored from corpusgen-contract-gemini-prodv1.ipynb
 
 domain:
-  name: "Contract Corpus (Gemini)"
-  description: "Generate contract documents for corpus creation"
-  language: "en"
-  min_document_length: 2000
+  name: "Legal Contract & Agreement Corpus"
+  target_language: "en"
+  generation_mode: "full_contract"
+  include_fairness_analysis: true
+  approach: "no_source"
+  num_variants: 1
+  max_text_length: 15000
+  min_text_length: 200
 
-taxonomy:
-  document_types:
+contract_taxonomy:
+  agreement_types:
     - "Non-Disclosure Agreement (NDA)"
     - "Master Services Agreement (MSA)"
-    - "Software License Agreement (EULA)"
+    - "Statement of Work (SOW)"
     - "Service Level Agreement (SLA)"
+    - "Software License Agreement (EULA)"
+    - "Shareholders Agreement"
+    - "Employment Agreement"
+    - "Partnership Agreement"
+    - "Joint Venture Agreement"
+    - "Commercial Lease Agreement"
+    - "Supply Agreement"
+    - "Distribution Agreement"
+    - "Franchise Agreement"
+    - "Consulting Agreement"
+    - "Software Development Agreement"
   industries:
-    - "Technology"
-    - "Healthcare"
-    - "Financial Services"
+    - "Information Technology (IT) & Software Development"
+    - "Artificial Intelligence & Machine Learning"
+    - "Banking, Fintech & Financial Services"
+    - "Healthcare, Pharmaceuticals & Biotechnology"
+    - "Construction & Real Estate Development"
+    - "Energy, Oil & Gas, & Utilities"
+    - "Manufacturing & Heavy Industry"
+    - "Government & Public Sector"
+    - "Retail & E-commerce"
+    - "Telecommunications"
+    - "Transportation & Logistics"
+  services:
+    - "Software Development & Integration"
+    - "SaaS / Cloud Services (IaaS, PaaS)"
+    - "AI Model Development & API Integration"
+    - "Strategic Management Consulting"
+    - "Legal Advisory & Compliance Review"
+    - "Facility Management & Maintenance"
+    - "Data Analytics & Business Intelligence"
+    - "Cybersecurity Services"
+    - "Marketing & Digital Advertising"
+    - "Supply Chain Management"
+  products:
+    - "Cloud-Based SaaS Platform"
+    - "Enterprise Hardware (Servers, Storage)"
+    - "AI Model License or Dataset Access"
+    - "Pharmaceutical Compounds & Medical Devices"
+    - "Construction Materials (cement, steel, glass)"
+    - "Consumer Electronics"
+    - "Industrial Equipment"
+    - "Software Licenses"
+  relationships:
+    - "B2B (Business-to-Business)"
+    - "B2G (Business-to-Government)"
+    - "Employer-Employee"
+    - "Partner-Partner (Joint Venture)"
+    - "Licensor-Licensee (IP Transfer)"
+    - "Vendor-Client"
+    - "Franchisor-Franchisee"
+  critical_clauses:
+    - "Confidentiality & Non-Disclosure"
+    - "Intellectual Property Ownership & Licensing"
+    - "Limitation of Liability & Damages Cap"
+    - "Indemnification & Defense Obligations"
+    - "Data Protection & Privacy Compliance (GDPR, HIPAA, PDPA)"
+    - "Dispute Resolution (Arbitration / Mediation)"
+    - "Payment Terms, Invoicing & Tax Obligations"
+    - "Termination for Convenience / Cause"
+    - "Force Majeure"
+    - "Warranties and Representations"
+    - "Non-Compete & Non-Solicitation"
+    - "Audit Rights"
   jurisdictions:
-    - "US Law"
-    - "UK Law"
+    - "US Federal & State Law"
+    - "European Union (EU) Law"
+    - "Singapore & ASEAN Regional Law"
+    - "Indonesia (Civil Law System)"
+    - "International (UNCITRAL / CISG Framework)"
+    - "United Kingdom"
+    - "Australia"
+    - "Canada"
+  metadata:
+    risk_profile: ["Low", "Medium", "High", "Critical"]
+    duration: ["<1 year", "1-3 years", "3-5 years", "5+ years", "Perpetual"]
+    contract_value: ["<50K", "50K-500K", "500K-5M", "5M-50M", ">50M USD"]
 
-system_prompt: |
-  You are a senior contract attorney drafting realistic commercial agreements.
+prompts:
+  system_prompt: |
+    You are a senior commercial attorney with 20+ years of experience drafting complex agreements
+    across multiple industries and jurisdictions.
 
-prompt_template: |
-  Generate a complete {document_type} for the {industry} industry.
+    You draft realistic, enforceable contracts that reflect actual business negotiations - not
+    generic templates. Your contracts include:
+    - Specific commercial terms with real numbers
+    - Industry-appropriate provisions and standards
+    - Natural language variations (not formulaic)
+    - Realistic party dynamics and negotiated positions
+    - Proper legal structure for the jurisdiction
 
-  CONTEXT:
-  - Jurisdiction: {jurisdiction}
-  - Minimum length: {min_document_length} words
+    You adapt your drafting style to the agreement type, industry, and risk profile.
 
-  REQUIREMENTS:
-  1. Include standard sections for this contract type
-  2. Use realistic party names and terms
-  3. Maintain formal legal style
+  contract_generation_prompt: |
+    Generate a complete, realistic {agreement_type} between two commercial parties.
 
-  Produce the full contract now.
+    BUSINESS CONTEXT:
+    - Industry Sector: {industry}
+    - Subject Matter: {service_product}
+    - Party Relationship: {relationship}
+    - Contract Duration: {duration}
+    - Estimated Value: {value}
+    - Risk Level: {risk_profile}
+    - Governing Law: {jurisdiction}
 
-quality:
-  min_document_length: 2000
-  target_language: "en"
+    REQUIRED ELEMENTS (naturally integrated, not as template):
+    Include these key provisions where relevant: {clauses}
+
+    INSTRUCTIONS:
+    1. Create realistic party names (companies/entities appropriate for {industry})
+    2. Use authentic legal language for {jurisdiction}
+    3. Structure naturally - sections should flow logically based on agreement type
+    4. Include realistic specifics: dates, amounts, deliverables, milestones, KPIs
+    5. Vary section depth - critical provisions should be detailed, standard ones concise
+    6. Add appropriate schedules/exhibits if the agreement type typically includes them
+    7. Write as a practicing attorney would - NOT from a template
+
+    The contract should feel like a real negotiated document with:
+    - Specific commercial terms (not generic placeholders)
+    - Industry-appropriate language and standards
+    - Natural variation in clause structure and detail
+    - Realistic party names and addresses
+    - Actual numbers, percentages, deadlines
+
+    Generate the complete agreement now. Be thorough where complexity demands it, concise where standard.
+
+    AGREEMENT DOCUMENT:
+
+  fairness_analysis_prompt: |
+    Analyze the power dynamics and fairness of this contract excerpt:
+
+    {contract_preview}
+
+    Context: {agreement_type} in {industry} sector
+    Parties: {relationship}
+
+    Provide a concise analysis (400-500 words):
+
+    1. BALANCE ASSESSMENT:
+       - Overall fairness score (1-10)
+       - Which party has stronger position
+       - Key power imbalances
+
+    2. RISK ALLOCATION:
+       - Financial risk distribution
+       - Performance obligations balance
+       - Exit/termination rights
+
+    3. NEGOTIATION POINTS:
+       - Provisions favoring Party A
+       - Provisions favoring Party B
+       - Balanced terms
+
+    Keep analysis focused and actionable.
+
+    ANALYSIS:
+
+notebook_config:
+  output_repository: "Azzindani/Legal_Contract_Syn"
+  batch_size: 5
+  model_name: "gemini-2.5-flash"
+  temperature: 0.85
+  max_output_tokens: 50000
+  enable_fairness_analysis: true
+  min_contract_length: 5000
+  target_language_confidence: 0.5
+  skip_processed_rows: true
+  progress_file: "synthesis_progress.json"
+  safety_settings:
+    HARM_CATEGORY_HARASSMENT: "BLOCK_NONE"
+    HARM_CATEGORY_HATE_SPEECH: "BLOCK_NONE"
+    HARM_CATEGORY_SEXUALLY_EXPLICIT: "BLOCK_NONE"
+    HARM_CATEGORY_DANGEROUS_CONTENT: "BLOCK_ONLY_HIGH"

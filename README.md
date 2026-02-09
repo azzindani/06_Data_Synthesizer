@@ -152,9 +152,14 @@ data_synthesizer/
 │   └── examples/                # Production run templates
 │
 ├── configs/                     # Domain-specific configs
-│   ├── indonesian_legal.yaml
-│   ├── contract_generation.yaml
-│   └── generic_qa.yaml
+│   ├── corpusgen_contract_gemini.yaml
+│   ├── corpusgen_legal.yaml
+│   ├── corpusqa_deepthinking.yaml
+│   ├── gemini_any_syn.yaml
+│   ├── gemini_any_syndeepthink.yaml
+│   ├── gemini_any_synthink.yaml
+│   ├── legal_qa_gemini.yaml
+│   └── legallqagen_gemini.yaml
 │
 ├── tests/                       # Test suite
 │   ├── __init__.py
@@ -219,7 +224,7 @@ providers:
 # Synthesis settings
 synthesis:
   type: "qa"  # qa | deep_thinking | corpus
-  domain_config: "configs/indonesian_legal.yaml"
+  domain_config: "configs/legal_qa_gemini.yaml"
   batch_size: 5
   questions_per_topic: 50
   num_variants: 5
@@ -235,7 +240,7 @@ output:
 quality:
   min_answer_length: 100
   max_answer_length: 2000
-  target_language: "id"
+  target_language: "en"
   language_confidence: 0.8
   min_quality_score: 0.6
 
@@ -340,7 +345,7 @@ python scripts/run.py --config config.yaml
 python scripts/run.py
 
 # With specific config
-python scripts/run.py --config configs/contract_generation.yaml
+python scripts/run.py --config configs/corpusgen_contract_gemini.yaml
 
 # Dry run (no API calls)
 python scripts/run.py --dry-run

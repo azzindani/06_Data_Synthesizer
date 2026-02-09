@@ -1,36 +1,60 @@
-# General Synthesis (Prompt-Only) Configuration
+# Gemini Any (Syn) - mirrored from gemini-any-syn-prod-v1.ipynb
 
 domain:
-  name: "General Synthesis"
-  description: "Prompt-only synthesis for broad topics"
-  language: "en"
+  name: "Indonesian Legal System"
+  target_language: "id"
+  num_variants: 5
 
-topics:
-  - "Technology trends"
-  - "Business strategy"
-  - "Healthcare operations"
-  - "Education policy"
-  - "Climate initiatives"
+  topics:
+    - "Hukum Pidana dan Sanksi"
+    - "Hukum Perdata dan Kontrak"
+    - "Hukum Tata Negara dan Konstitusi"
+    - "Hukum Keluarga dan Perkawinan"
+    - "Hukum Bisnis dan Perdagangan"
+    - "Hukum Ketenagakerjaan"
+    - "Hukum Lingkungan"
+    - "Hukum HAM dan Kebebasan Sipil"
+    - "Prosedur Pengadilan"
+    - "Hukum Properti dan Tanah"
 
-system_prompt: |
-  You are a knowledgeable assistant generating concise, factual content.
+prompts:
+  system_prompt: |
+    Anda adalah seorang ahli hukum Indonesia yang berpengalaman dengan pemahaman mendalam tentang
+    sistem hukum Indonesia. Tugas Anda adalah membuat pasangan pertanyaan-jawaban berkualitas tinggi
+    untuk membantu orang memahami berbagai aspek hukum Indonesia.
 
-prompt_template: |
-  Generate {num_variants} QA pairs for topic: "{topic}".
+  prompt_template: |
+    Buat {num_variants} pasangan pertanyaan-jawaban berkualitas tinggi tentang topik: "{topic}"
 
-  REQUIREMENTS:
-  1. Provide clear, direct answers
-  2. Keep each answer at least {min_answer_length} words
-  3. Avoid speculative claims
+    PERSYARATAN:
+    1. Setiap jawaban minimal 100 kata, maksimal 1500 kata
+    2. Gunakan bahasa Indonesia yang formal dan tepat
+    3. Sertakan rujukan hukum yang relevan (pasal, undang-undang, peraturan)
+    4. Gunakan terminologi hukum Indonesia yang benar
+    5. Berikan penjelasan yang komprehensif dan akurat
+    6. Setiap QA pair berbeda pendekatan tapi relevan dengan topik
+    7. Variasi tingkat kesulitan (dasar hingga lanjutan)
 
-  FORMAT JSON:
-  [
-    {{"question": "...", "answer": "..."}}
-  ]
+    JENIS VARIASI:
+    - Definisi dan konsep dasar
+    - Prosedur dan mekanisme hukum
+    - Analisis kasus praktis
+    - Perbandingan dengan peraturan lain
+    - Aplikasi dalam kehidupan sehari-hari
+
+    FORMAT JSON:
+    {json_template}
+
+    Berikan HANYA JSON array yang valid tanpa penjelasan tambahan.
+
+  json_template: |
+    [
+      {"question": "pertanyaan 1 tentang {topic}", "answer": "jawaban lengkap dan komprehensif 1"},
+      {"question": "pertanyaan 2 tentang {topic}", "answer": "jawaban lengkap dan komprehensif 2"}
+    ]
 
 quality:
-  min_answer_length: 80
-  max_answer_length: 1200
-  min_question_length: 10
-  target_language: "en"
+  min_answer_length: 100
+  max_answer_length: 1500
+  target_language: "id"
   language_confidence: 0.8

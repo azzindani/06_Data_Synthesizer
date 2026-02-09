@@ -1,37 +1,135 @@
-# General Synthesis (Deep-Thinking QA) Configuration
+# Gemini Any (Iterative Deep Thinking) - mirrored from gemini-any-syndeepthink-prod-v1.ipynb
 
 domain:
-  name: "General Deep-Thinking QA"
-  description: "Generate QA pairs with reasoning traces across broad topics"
-  language: "en"
+  name: "Indonesian Legal System - Iterative Deep Thinking"
+  target_language: "id"
+  num_variants: 2
 
-topics:
-  - "Market analysis"
-  - "Product management"
-  - "Supply chain"
-  - "Cybersecurity"
-  - "Public policy"
+  topics:
+    - "Analisis Kasus Hukum Pidana Kompleks"
+    - "Dilema Etis dalam Hukum Perdata"
+    - "Interpretasi Konstitusi dan Precedent"
+    - "Konflik Hukum Keluarga Modern"
+    - "Strategi Litigasi Bisnis"
+    - "Reformasi Hukum Ketenagakerjaan"
+    - "Kebijakan Hukum Lingkungan Berkelanjutan"
+    - "Implementasi HAM dalam Praktik"
+    - "Inovasi Prosedur Pengadilan"
+    - "Evolusi Hukum Properti Digital"
 
-system_prompt: |
-  You are an analyst generating QA pairs with structured reasoning. Provide
-  concise reasoning that supports each answer.
+thinking_structure:
+  initial_analysis:
+    - "Analisis awal masalah"
+    - "Identifikasi isu-isu utama"
+    - "Pengumpulan fakta-fakta kunci"
+    - "Penentuan konteks hukum yang relevan"
+  deep_exploration:
+    - "Penelusuran dasar hukum yang berlaku"
+    - "Analisis precedent dan yurisprudensi"
+    - "Pertimbangan berbagai perspektif stakeholder"
+    - "Evaluasi dampak dan konsekuensi potensial"
+  critical_evaluation:
+    - "Pemeriksaan ulang asumsi-asumsi awal"
+    - "Identifikasi kelemahan dalam argumentasi"
+    - "Pertimbangan counter-argument"
+    - "Validasi terhadap sumber-sumber hukum"
+  iterative_refinement:
+    - "Revisi pandangan berdasarkan evaluasi"
+    - "Integrasi insight baru yang ditemukan"
+    - "Penyesuaian kesimpulan sementara"
+    - "Konfirmasi kembali relevansi dan akurasi"
+  final_synthesis:
+    - "Konsolidasi seluruh analisis"
+    - "Penarikan kesimpulan yang terintegrasi"
+    - "Formulasi rekomendasi yang actionable"
+    - "Penyusunan jawaban yang concise namun comprehensive"
 
-prompt_template: |
-  Generate {num_variants} QA pairs for topic: "{topic}".
+reasoning_indicators:
+  - "berdasarkan analisis awal"
+  - "dari pemahaman pertama"
+  - "pada pandangan pertama"
+  - "setelah meneliti lebih lanjut"
+  - "dari kajian mendalam"
+  - "berdasarkan penelusuran"
+  - "namun perlu dipertimbangkan"
+  - "di sisi lain"
+  - "akan tetapi"
+  - "sebaliknya"
+  - "setelah mempertimbangkan ulang"
+  - "dengan memeriksa kembali"
+  - "setelah refleksi lebih lanjut"
+  - "dengan mempertimbangkan kembali"
+  - "revisi pemahaman menunjukkan"
+  - "insight tambahan mengungkapkan"
+  - "analisis ulang memperlihatkan"
+  - "berdasarkan keseluruhan analisis"
+  - "dengan mengintegrasikan semua faktor"
+  - "kesimpulan akhir menunjukkan"
+  - "secara komprehensif dapat disimpulkan"
 
-  REQUIREMENTS:
-  1. Include a reasoning field for each answer
-  2. Keep answers at least {min_answer_length} words
-  3. Keep reasoning concise and structured
+fact_check_phrases:
+  - "verifikasi terhadap"
+  - "konfirmasi bahwa"
+  - "validasi menunjukkan"
+  - "cross-check dengan"
+  - "pemeriksaan ulang mengkonfirmasi"
+  - "fact-checking mengungkapkan"
+  - "validasi sumber menunjukkan"
 
-  FORMAT JSON:
-  [
-    {{"question": "...", "answer": "...", "reasoning": "..."}}
-  ]
+prompts:
+  system_prompt: |
+    Anda adalah seorang ahli hukum Indonesia dengan kemampuan analisis yang sangat mendalam. Tugas
+    Anda adalah melakukan proses berpikir iteratif yang sangat panjang dan menyeluruh, kemudian
+    memberikan jawaban yang concise dan direct. Proses thinking harus menunjukkan loop iteratif,
+    fact-checking, dan reconsideration berkali-kali sebelum mencapai kesimpulan.
+
+  prompt_template: |
+    Buat {num_variants} pasangan pertanyaan-jawaban dengan ITERATIVE DEEP THINKING tentang: "{topic}"
+
+    PERSYARATAN ITERATIVE THINKING:
+    1. Thinking process harus SANGAT PANJANG (minimal 800 kata) dengan struktur iteratif
+    2. Harus ada minimal 3 loop iterasi dengan reconsideration dan fact-checking
+    3. Tunjukkan proses revisi pemikiran dan refinement berkali-kali
+    4. Answer harus SINGKAT (100-200 kata) namun direct dan comprehensive
+    5. Gunakan bahasa Indonesia formal dengan terminologi hukum yang tepat
+
+    STRUKTUR THINKING PROCESS:
+    {structure_example}
+
+    INDIKATOR YANG HARUS ADA:
+    - Frasa iterative: "setelah mempertimbangkan ulang", "revisi pemahaman", "iterasi selanjutnya"
+    - Fact-checking: "verifikasi menunjukkan", "cross-check dengan", "validasi sumber"
+    - Multiple perspectives: "dari sudut pandang lain", "perspektif berbeda", "angle alternatif"
+    - Refinement: "penyempurnaan analisis", "integrasi insight baru", "konsolidasi pemahaman"
+
+    RASIO TARGET:
+    - Thinking: 800-1500 kata (sangat detail dengan loop iteratif)
+    - Answer: 100-200 kata (concise dan direct)
+
+    FORMAT JSON:
+    {json_template}
+
+    Berikan HANYA JSON array yang valid tanpa penjelasan tambahan.
+
+  structure_example: |
+    1. ANALISIS AWAL: [pemahaman pertama]
+    2. PENELUSURAN MENDALAM: [kajian komprehensif]
+    3. EVALUASI KRITIS: [pemeriksaan ulang asumsi]
+    4. ITERASI 1: [revisi berdasarkan temuan baru]
+    5. FACT-CHECK: [verifikasi ulang data dan sumber]
+    6. ITERASI 2: [penyempurnaan pemahaman]
+    7. EVALUASI ULANG: [pemeriksaan kembali dari sudut berbeda]
+    8. ITERASI 3: [integrasi insight final]
+    9. SINTESIS AKHIR: [konsolidasi seluruh analisis]
+
+  json_template: |
+    [
+      {"question": "pertanyaan kompleks 1 tentang {topic}", "thinking": "proses berpikir iteratif yang sangat panjang dengan multiple loops", "answer": "jawaban singkat dan direct 1"},
+      {"question": "pertanyaan kompleks 2 tentang {topic}", "thinking": "proses berpikir iteratif yang sangat panjang dengan multiple loops", "answer": "jawaban singkat dan direct 2"}
+    ]
 
 quality:
   min_answer_length: 100
-  max_answer_length: 1500
-  min_question_length: 12
-  target_language: "en"
+  max_answer_length: 200
+  target_language: "id"
   language_confidence: 0.8

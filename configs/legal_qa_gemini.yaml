@@ -1,37 +1,66 @@
-# Legal QA Synthesis Configuration (Gemini)
+# Legal QA Synthesis (Gemini) - mirrored from legal-qa-syn-gemini-prod-v1.ipynb
 
 domain:
-  name: "Legal QA Synthesis"
-  description: "Generate legal QA pairs for domain-specific topics"
-  language: "en"
+  name: "Indonesian Legal QA Augmentation"
+  target_language: "id"
+  num_variants: 5
 
-topics:
-  - "Contract law fundamentals"
-  - "Liability and indemnity"
-  - "Employment agreements"
-  - "Privacy regulations"
-  - "IP licensing"
+prompts:
+  prompt_template: |
+    Anda adalah ahli hukum Indonesia senior. Buat {num_variants} variasi berkualitas tinggi dari Q&A
+    hukum berikut:
 
-system_prompt: |
-  You are a legal expert creating precise QA pairs. Keep questions clear and
-  answers detailed and grounded in legal principles.
+    MATERI ASLI:{context_part}
+    Q: {question}
+    A: {answer}
 
-prompt_template: |
-  Generate {num_variants} QA pairs for topic: "{topic}".
+    PERSYARATAN:
+    1. Setiap jawaban minimal {min_answer_words} kata
+    2. Pertahankan SEMUA kutipan hukum (Pasal, UU, PP, dll.)
+    3. Pertahankan terminologi hukum Indonesia
+    4. Gunakan bahasa formal dan analisis mendalam
+    5. Setiap variasi berbeda pendekatan tapi substansi sama
 
-  REQUIREMENTS:
-  1. Answers must be at least {min_answer_length} words
-  2. Use formal legal language
-  3. Provide practical guidance where appropriate
+    VARIASI:
+    - Akademik: analisis teoretis mendalam
+    - Praktis: aplikasi dalam praktik hukum
+    - Komparatif: hubungan dengan peraturan lain
 
-  FORMAT JSON:
-  [
-    {{"question": "...", "answer": "..."}}
-  ]
+    FORMAT JSON:
+    {json_template}
+
+    Berikan HANYA JSON array yang valid.
+
+  json_template: |
+    [
+      {"question": "variasi 1", "answer": "jawaban lengkap 1"},
+      {"question": "variasi 2", "answer": "jawaban lengkap 2"}
+    ]
+
+notebook_config:
+  original_dataset: "Azzindani/Indonesian_Legal_QA"
+  output_repository: "Azzindani/ID_Legal_Bench"
+  question_column: "Question"
+  answer_column: "Answer"
+  context_column: null
+  citation_column: null
+  preserve_columns: []
+  chunk_size: 20
+  model_name: "gemini-2.5-flash"
+  temperature: 0.6
+  input_token_limit: 10000
+  output_token_limit: "num_variants * 4000"
+  min_question_length: 15
+  min_answer_length: 50
+  max_question_length: 2000
+  max_answer_length: 8000
+  min_overall_score: 0.60
+  data_dir: "./data/"
+  progress_file: "progress.json"
 
 quality:
-  min_answer_length: 120
-  max_answer_length: 1500
-  min_question_length: 12
-  target_language: "en"
-  language_confidence: 0.8
+  min_question_length: 15
+  min_answer_length: 50
+  max_question_length: 2000
+  max_answer_length: 8000
+  target_language: "id"
