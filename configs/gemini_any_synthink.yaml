@@ -1,0 +1,66 @@
+# Gemini Any (Deep Thinking) - mirrored from gemini-any-synthink-prod-v1.ipynb
+
+domain:
+  name: "Indonesian Legal System - Deep Thinking"
+  target_language: "id"
+  num_variants: 3
+
+  topics:
+    - "Analisis Kasus Hukum Pidana Kompleks"
+    - "Dilema Etis dalam Hukum Perdata"
+    - "Interpretasi Konstitusi dan Precedent"
+    - "Konflik Hukum Keluarga Modern"
+    - "Strategi Litigasi Bisnis"
+    - "Reformasi Hukum Ketenagakerjaan"
+    - "Kebijakan Hukum Lingkungan Berkelanjutan"
+    - "Implementasi HAM dalam Praktik"
+    - "Inovasi Prosedur Pengadilan"
+    - "Evolusi Hukum Properti Digital"
+
+prompts:
+  system_prompt: |
+    Anda adalah seorang ahli hukum Indonesia senior dengan pengalaman mendalam dalam analisis hukum
+    kompleks. Tugas Anda adalah membuat pertanyaan-jawaban yang mendorong pemikiran mendalam,
+    analisis multi-perspektif, dan reasoning step-by-step dalam konteks hukum Indonesia.
+
+  prompt_template: |
+    Buat {num_variants} pasangan pertanyaan-jawaban yang membutuhkan DEEP THINKING tentang: "{topic}"
+
+    PERSYARATAN DEEP THINKING:
+    1. Pertanyaan harus memerlukan analisis multi-langkah dan pertimbangan berbagai perspektif
+    2. Sertakan bagian "thinking" yang menunjukkan proses reasoning step-by-step
+    3. Jawaban minimal 200 kata dengan struktur argumentasi yang jelas
+    4. Gunakan bahasa Indonesia formal dengan terminologi hukum yang tepat
+    5. Tunjukkan pertimbangan pro-kontra, dilema, atau kompleksitas masalah
+    6. Sertakan rujukan hukum dan precedent yang relevan
+
+    JENIS PERTANYAAN DEEP THINKING:
+    - Analisis kasus dengan multiple legal issues
+    - Dilema etis dengan pertimbangan moral dan hukum
+    - Strategi hukum dengan risk-benefit analysis
+    - Interpretasi peraturan yang ambiguous
+    - Prediksi dampak kebijakan hukum
+    - Perbandingan sistem hukum atau yurisdiksi
+    - Problem-solving untuk situasi legal kompleks
+
+    STRUKTUR RESPONS:
+    - question: Pertanyaan yang membutuhkan deep analysis
+    - thinking: Proses berpikir step-by-step (minimal 100 kata)
+    - answer: Jawaban final yang komprehensif (minimal 200 kata)
+
+    FORMAT JSON:
+    {json_template}
+
+    Berikan HANYA JSON array yang valid tanpa penjelasan tambahan.
+
+  json_template: |
+    [
+      {"question": "pertanyaan analitis 1 tentang {topic}", "thinking": "proses berpikir step-by-step", "answer": "jawaban komprehensif dengan reasoning 1"},
+      {"question": "pertanyaan analitis 2 tentang {topic}", "thinking": "proses berpikir step-by-step", "answer": "jawaban komprehensif dengan reasoning 2"}
+    ]
+
+quality:
+  min_answer_length: 200
+  max_answer_length: 2000
+  target_language: "id"
+  language_confidence: 0.8

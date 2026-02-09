@@ -1,0 +1,154 @@
+# Legal LQA Generation (Gemini) - mirrored from legallqagen-gemini-prodv1.ipynb
+
+domain:
+  name: "Deep Thinking Legal QA Dataset"
+  target_language: "en"
+  generation_mode: "legal_qa_deep_thinking"
+  thinking_style: "iterative"
+  require_deep_analysis: true
+  approach: "no_source"
+  num_variants: 1
+  max_text_length: 15000
+  min_text_length: 200
+
+legal_qa_taxonomy:
+  corporate_commercial_qa:
+    - "Interpretation of company policies in hypothetical scenarios"
+    - "Corporate governance decision-making Q&A"
+    - "Compliance risk scenario questions"
+    - "Deal structure conflict resolution Q&A"
+    - "M&A due diligence problem-solving questions"
+  contract_negotiation_qa:
+    - "Clause interpretation questions in synthetic contracts"
+    - "Contract comparison reasoning Q&A"
+    - "Redline revision scenario questions"
+    - "Negotiation strategy scenario Q&A"
+    - "Identifying contractual vulnerabilities"
+  litigation_dispute_qa:
+    - "Identify potential claims and defenses from fact patterns"
+    - "Evidence evaluation and credibility Q&A"
+    - "Settlement strategy reasoning questions"
+    - "Outcome prediction from scenario facts"
+    - "Trial strategy optimization Q&A"
+  legal_analysis_qa:
+    - "Scenario-based advisory questions"
+    - "Risk assessment reasoning Q&A"
+    - "Ethical/legal dilemma scenario questions"
+    - "Policy compliance advisory Q&A"
+    - "Strategic decision-making in complex cases"
+  regulatory_compliance_qa:
+    - "Compliance checklist validation Q&A"
+    - "Multi-jurisdiction regulatory scenario Q&A"
+    - "Regulatory risk mitigation Q&A"
+    - "Compliance failure scenario questions"
+  employment_hr_qa:
+    - "Whistleblower complaint scenario Q&A"
+    - "Labor dispute reasoning Q&A"
+    - "Workplace investigation reasoning exercises"
+    - "Disciplinary action reasoning questions"
+  meta_legal_reasoning_qa:
+    - "Negotiation strategy scenario Q&A"
+    - "Judge / jury prediction scenario questions"
+    - "Corporate crisis strategy reasoning Q&A"
+    - "Predictive litigation outcome exercises"
+    - "Strategic evidence and persuasion scenario questions"
+
+thinking_requirements:
+  min_thinking_words: 600
+  min_answer_words: 150
+  max_answer_words: 300
+  required_iterations: 3
+
+prompts:
+  system_prompt: |
+    You are a senior legal advisor with deep analytical capabilities. When analyzing legal questions,
+    you engage in extensive iterative thinking - considering multiple perspectives, checking
+    assumptions, reconsidering positions, and validating conclusions before providing concise,
+    well-reasoned advice.
+
+  deep_thinking_qa_prompt: |
+    Generate a legal question-answer pair with DEEP ITERATIVE THINKING:
+
+    TOPIC: {qa_topic}
+    CATEGORY: {category}
+
+    Create a complex legal scenario question that requires deep analysis, then provide your answer in TWO parts:
+
+    PART 1 - THINKING PROCESS (MINIMUM 600 WORDS):
+    Show your complete iterative reasoning with multiple reconsideration loops:
+
+    INITIAL ANALYSIS:
+    - What are the key facts and their legal significance?
+    - What legal issues are immediately apparent?
+    - What is my initial impression?
+
+    DEEPER EXAMINATION - ITERATION 1:
+    - Wait, what assumptions am I making?
+    - Are there alternative interpretations of the facts?
+    - What legal principles might apply differently?
+    - What am I potentially missing?
+
+    CROSS-CHECKING - ITERATION 2:
+    - Let me verify my reasoning against established precedents
+    - Are there counter-arguments I haven't considered?
+    - What would opposing counsel argue?
+    - How might a judge view this differently?
+
+    RISK ASSESSMENT - ITERATION 3:
+    - What are the practical implications of each interpretation?
+    - What are the best-case and worst-case scenarios?
+    - What hidden risks or opportunities exist?
+    - How confident am I in each aspect of my analysis?
+
+    SYNTHESIS AND VALIDATION:
+    - Reconsidering everything, what is the most defensible position?
+    - Where is my analysis strongest? Where is it weakest?
+    - What would I advise a client with high confidence vs. uncertainty?
+    - Final check: Am I missing anything critical?
+
+    PART 2 - DIRECT ANSWER (150-250 WORDS):
+    Concise, actionable legal advice based on the thinking above.
+
+    FORMAT:
+
+    Question: [Complex legal scenario requiring deep analysis, 100-200 words]
+
+    Thinking: [Extensive iterative analysis with multiple reconsideration loops, MINIMUM 600 words showing all reasoning stages]
+
+    Answer: [Concise, direct legal advice, 150-250 words]
+
+    Generate the complete deep-thinking QA:
+
+  alternative_deep_thinking_prompt: |
+    Create a legal advisory training example with comprehensive analytical reasoning:
+
+    TOPIC: {qa_topic}
+
+    For legal education, generate:
+
+    1. A complex scenario question (100-200 words)
+
+    2. Extended analytical process (600+ words) showing:
+       - Initial assessment and issue spotting
+       - Multiple rounds of reconsideration and refinement
+       - Alternative interpretations and counter-arguments
+       - Risk analysis from multiple angles
+       - Validation of conclusions
+       - Final synthesis
+
+    3. Practical advisory answer (150-250 words)
+
+    Use this structure:
+
+    Question: [scenario]
+
+    Thinking:
+    STAGE 1 - INITIAL ASSESSMENT: [analysis]
+    STAGE 2 - RECONSIDERATION: [re-evaluation]
+    STAGE 3 - ALTERNATIVE PERSPECTIVES: [counter-arguments]
+    STAGE 4 - RISK MAPPING: [risk analysis]
+    STAGE 5 - FINAL VALIDATION: [conclusion check]
+
+    Answer: [practical advice]
+
+    Generate complete example:

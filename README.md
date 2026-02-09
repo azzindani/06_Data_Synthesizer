@@ -123,7 +123,7 @@ data_synthesizer/
 │   │   ├── base.py              # Abstract base provider
 │   │   ├── gemini.py            # Google Gemini API
 │   │   ├── openrouter.py        # OpenRouter API
-│   │   ├── openai.py            # OpenAI API
+│   │   ├── openai_provider.py   # OpenAI API
 │   │   └── factory.py           # Provider factory with failover
 │   │
 │   ├── synthesizers/            # Synthesis engines
@@ -139,27 +139,27 @@ data_synthesizer/
 │   │   ├── quality.py           # Quality scoring
 │   │   └── pipeline.py          # Validation pipeline
 │   │
-│   ├── outputs/                 # Output handlers
+│   ├── utils/                   # Utilities
 │   │   ├── __init__.py
-│   │   ├── huggingface.py       # HuggingFace Hub upload
-│   │   ├── local.py             # Local file storage
-│   │   └── base.py              # Abstract output handler
-│   │
-│   └── utils/                   # Utilities
-│       ├── __init__.py
-│       ├── retry.py             # Retry with backoff
-│       ├── json_parser.py       # Robust JSON extraction
-│       └── text_cleaner.py      # Text preprocessing
+│   │   ├── output_handler.py    # Local + HuggingFace output handlers
+│   │   ├── retry.py             # Retry with backoff
+│   │   ├── json_parser.py       # Robust JSON extraction
+│   │   └── text_cleaner.py      # Text preprocessing
 │
-├── notebooks/                   # Jupyter notebook versions
+├── notebooks/                   # Jupyter notebooks + index
+│   ├── README.md                # Notebook catalog + workflows
 │   ├── qa_synthesis.ipynb
-│   ├── deep_thinking.ipynb
-│   └── corpus_generator.ipynb
+│   └── examples/                # Production run templates
 │
 ├── configs/                     # Domain-specific configs
-│   ├── indonesian_legal.yaml
-│   ├── contract_generation.yaml
-│   └── generic_qa.yaml
+│   ├── corpusgen_contract_gemini.yaml
+│   ├── corpusgen_legal.yaml
+│   ├── corpusqa_deepthinking.yaml
+│   ├── gemini_any_syn.yaml
+│   ├── gemini_any_syndeepthink.yaml
+│   ├── gemini_any_synthink.yaml
+│   ├── legal_qa_gemini.yaml
+│   └── legallqagen_gemini.yaml
 │
 ├── tests/                       # Test suite
 │   ├── __init__.py
@@ -224,7 +224,7 @@ providers:
 # Synthesis settings
 synthesis:
   type: "qa"  # qa | deep_thinking | corpus
-  domain_config: "configs/indonesian_legal.yaml"
+  domain_config: "configs/legal_qa_gemini.yaml"
   batch_size: 5
   questions_per_topic: 50
   num_variants: 5
@@ -240,7 +240,7 @@ output:
 quality:
   min_answer_length: 100
   max_answer_length: 2000
-  target_language: "id"
+  target_language: "en"
   language_confidence: 0.8
   min_quality_score: 0.6
 
@@ -266,6 +266,7 @@ monitoring:
 ```bash
 # API Keys (required)
 GEMINI_API_KEY=your_gemini_key
+GEMINI_API_KEYS=key1,key2,key3  # optional multi-key rotation for Gemini
 OPENROUTER_API_KEY=your_openrouter_key
 OPENAI_API_KEY=your_openai_key
 
@@ -345,7 +346,7 @@ python scripts/run.py --config config.yaml
 python scripts/run.py
 
 # With specific config
-python scripts/run.py --config configs/contract_generation.yaml
+python scripts/run.py --config configs/corpusgen_contract_gemini.yaml
 
 # Dry run (no API calls)
 python scripts/run.py --dry-run
@@ -403,6 +404,9 @@ synthesizer.show_progress()
 # Continue synthesis
 synthesizer.continue_synthesis()
 ```
+
+See `notebooks/README.md` for a catalog of the example notebooks and production templates, including
+source-backed vs. no-source workflow guidance.
 
 ---
 

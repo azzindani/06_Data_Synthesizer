@@ -7,7 +7,7 @@ import tempfile
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.core.config import _create_default_config
+from src.core.config import load_config
 from src.core.logger import setup_root_logger
 from src.core.progress import ProgressManager
 from src.utils.json_parser import extract_json, parse_json_safely, parse_qa_variants
@@ -178,7 +178,7 @@ def test_progress_tracking():
     print("TEST: Progress Tracking")
     print("=" * 50)
 
-    config = _create_default_config()
+    config = load_config("config.yaml")
     config.output.local_path = tempfile.mkdtemp()
 
     pm = ProgressManager(config)

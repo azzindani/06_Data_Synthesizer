@@ -186,18 +186,20 @@ def _parse_config(data: dict) -> Config:
     config.fallback_providers = providers_data.get("fallback", config.fallback_providers)
     config.auto_switch = providers_data.get("auto_switch", config.auto_switch)
 
-    # Parse individual providers
-    for provider_name in ["gemini", "openrouter", "openai"]:
-        if provider_name in providers_data:
-            provider_data = providers_data[provider_name]
-            config.providers[provider_name] = ProviderConfig(
-                name=provider_name,
-                model=provider_data.get("model", ""),
-                temperature=provider_data.get("temperature", 0.7),
-                max_output_tokens=provider_data.get("max_output_tokens", 8000),
-                rate_limit_delay=provider_data.get("rate_limit_delay", 4.0),
-                api_key=provider_data.get("api_key", "")
-            )
+    # Parse individual providers from config
+    for provider_name, provider_data in providers_data.items():
+        if provider_name in {"primary", "fallback", "auto_switch"}:
+            continue
+        if not isinstance(provider_data, dict):
+            continue
+        config.providers[provider_name] = ProviderConfig(
+            name=provider_name,
+            model=provider_data.get("model", ""),
+            temperature=provider_data.get("temperature", 0.7),
+            max_output_tokens=provider_data.get("max_output_tokens", 8000),
+            rate_limit_delay=provider_data.get("rate_limit_delay", 4.0),
+            api_key=provider_data.get("api_key", "")
+        )
 
     # If no providers configured, add defaults
     if not config.providers:

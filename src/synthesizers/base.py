@@ -306,9 +306,9 @@ if __name__ == "__main__":
     print("=" * 60)
 
     # Note: BaseSynthesizer is abstract, so we just test that it can't be instantiated
-    from ..core.config import _create_default_config
+    from ..core.config import load_config
 
-    config = _create_default_config()
+    config = load_config("config.yaml")
 
     try:
         synth = BaseSynthesizer(config)

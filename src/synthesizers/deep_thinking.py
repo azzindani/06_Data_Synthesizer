@@ -276,10 +276,10 @@ if __name__ == "__main__":
     print("DEEP THINKING SYNTHESIZER TEST")
     print("=" * 60)
 
-    from ..core.config import _create_default_config
+    from ..core.config import load_config
     import os
 
-    config = _create_default_config()
+    config = load_config("config.yaml")
     config.output.type = "local"
     config.output.local_path = "./test_output"
     config.synthesis.num_variants = 2
@@ -290,9 +290,6 @@ if __name__ == "__main__":
         'min_thinking_words': 300,
         'max_answer_words': 150
     }
-
-    if 'gemini' in config.providers:
-        config.providers['gemini'].api_key = os.getenv("GEMINI_API_KEY", "")
 
     try:
         synth = DeepThinkingSynthesizer(config)

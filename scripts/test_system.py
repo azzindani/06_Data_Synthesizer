@@ -7,7 +7,7 @@ import os
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.core.config import _create_default_config, load_config
+from src.core.config import load_config
 from src.core.logger import setup_root_logger, get_logger
 from src.core.progress import ProgressManager
 from src.providers.base import FinishReason, GenerationResult
@@ -25,7 +25,7 @@ def test_config():
     print("TEST: Configuration System")
     print("=" * 50)
 
-    config = _create_default_config()
+    config = load_config("config.yaml")
 
     assert config.synthesis.questions_per_topic > 0, "Questions per topic should be > 0"
     assert config.retry.max_attempts > 0, "Max attempts should be > 0"
@@ -47,7 +47,7 @@ def test_progress_manager():
 
     import tempfile
 
-    config = _create_default_config()
+    config = load_config("config.yaml")
     config.output.local_path = tempfile.mkdtemp()
 
     pm = ProgressManager(config)

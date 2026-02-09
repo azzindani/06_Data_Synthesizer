@@ -293,10 +293,12 @@ if __name__ == "__main__":
     print("=" * 60)
 
     from unittest.mock import Mock
+    from ..core.config import load_config
 
-    # Create mock providers
+    # Create mock providers based on config
+    config = load_config("config.yaml")
     providers = {}
-    for name in ['gemini', 'openrouter', 'openai']:
+    for name in config.get_active_providers():
         mock = Mock(spec=BaseProvider)
         mock.name = name
         providers[name] = mock
@@ -310,15 +312,19 @@ if __name__ == "__main__":
     print(f"  ✓ Got provider: {name}")
 
     # Test 3: Record metrics
-    balancer.record_result("gemini", True, 500)
-    balancer.record_result("gemini", True, 600)
-    balancer.record_result("openrouter", True, 300)
+    provider_names = list(providers.keys())
+    if provider_names:
+        balancer.record_result(provider_names[0], True, 500)
+    if len(provider_names) > 0:
+        balancer.record_result(provider_names[0], True, 600)
+    if len(provider_names) > 1:
+        balancer.record_result(provider_names[1], True, 300)
     print(f"  ✓ Recorded metrics")
 
     # Test 4: Get metrics
     metrics = balancer.get_metrics()
-    print(f"  ✓ Gemini score: {metrics['gemini']['score']:.1f}")
-    print(f"  ✓ OpenRouter score: {metrics['openrouter']['score']:.1f}")
+    for name, data in metrics.items():
+        print(f"  ✓ {name} score: {data['score']:.1f}")
 
     # Test 5: Change strategy
     balancer.set_strategy("round_robin")

@@ -8,7 +8,7 @@ import shutil
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.core.config import _create_default_config
+from src.core.config import load_config
 from src.core.logger import setup_root_logger, get_logger
 from src.core.progress import ProgressManager
 from src.providers.base import GenerationResult, FinishReason
@@ -31,7 +31,7 @@ def test_complete_pipeline():
 
     # Setup
     tmpdir = tempfile.mkdtemp()
-    config = _create_default_config()
+    config = load_config("config.yaml")
     config.output.local_path = tmpdir
 
     try:
