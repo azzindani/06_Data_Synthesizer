@@ -13,7 +13,7 @@ from typing import List, Dict, Any, Optional
 # Add parent to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.core.config import load_config, _create_default_config
+from src.core.config import load_config
 from src.core.logger import get_logger, setup_root_logger
 from src.core.progress import ProgressManager
 from src.providers.factory import create_provider
@@ -52,9 +52,7 @@ class AdvancedSynthesizer:
     def _load_or_create_config(self):
         """Load config or create default."""
         config_path = "config.yaml"
-        if os.path.exists(config_path):
-            return load_config(config_path)
-        return _create_default_config()
+        return load_config(config_path)
 
     def _initialize(self):
         """Initialize all components."""

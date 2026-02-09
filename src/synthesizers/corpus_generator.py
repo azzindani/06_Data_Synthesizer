@@ -265,10 +265,10 @@ if __name__ == "__main__":
     print("CORPUS GENERATOR TEST")
     print("=" * 60)
 
-    from ..core.config import _create_default_config
+    from ..core.config import load_config
     import os
 
-    config = _create_default_config()
+    config = load_config("config.yaml")
     config.output.type = "local"
     config.output.local_path = "./test_output"
     config.synthesis.questions_per_topic = 2
@@ -282,9 +282,6 @@ if __name__ == "__main__":
             'jurisdictions': ['US Law', 'UK Law']
         }
     }
-
-    if 'gemini' in config.providers:
-        config.providers['gemini'].api_key = os.getenv("GEMINI_API_KEY", "")
 
     try:
         gen = CorpusGenerator(config)

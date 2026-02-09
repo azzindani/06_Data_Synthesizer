@@ -168,10 +168,10 @@ if __name__ == "__main__":
     print("=" * 60)
 
     import os
-    from ..core.config import _create_default_config
+    from ..core.config import load_config
 
     # Create test config
-    config = _create_default_config()
+    config = load_config("config.yaml")
     config.output.type = "local"
     config.output.local_path = "./test_output"
     config.synthesis.num_variants = 3
@@ -182,10 +182,6 @@ if __name__ == "__main__":
         'domain': 'Test Domain',
         'topics': ['Test Topic 1', 'Test Topic 2']
     }
-
-    # Set API key for testing
-    if 'gemini' in config.providers:
-        config.providers['gemini'].api_key = os.getenv("GEMINI_API_KEY", "")
 
     # Test 1: Create synthesizer
     try:

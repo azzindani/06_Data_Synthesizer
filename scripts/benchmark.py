@@ -13,7 +13,7 @@ from typing import Dict, Any, List
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.core.config import load_config, _create_default_config
+from src.core.config import load_config
 from src.core.logger import get_logger, setup_root_logger
 from src.providers.factory import ProviderFactory, create_provider
 from src.utils.json_parser import extract_json, parse_json_safely
@@ -168,10 +168,9 @@ def benchmark_memory_usage() -> Dict[str, Any]:
     tracemalloc.start()
 
     # Simulate typical operations
-    from src.core.config import _create_default_config
     from src.core.progress import ProgressManager
 
-    config = _create_default_config()
+    config = load_config("config.yaml")
 
     # Create progress manager with some data
     pm = ProgressManager(config)
@@ -286,11 +285,7 @@ def main():
     logger = get_logger(__name__)
 
     # Load config
-    if os.path.exists(args.config):
-        config = load_config(args.config)
-    else:
-        logger.warning(f"Config not found: {args.config}, using defaults")
-        config = _create_default_config()
+    config = load_config(args.config)
 
     # Run benchmarks
     logger.info("Starting benchmarks...")

@@ -216,17 +216,10 @@ if __name__ == "__main__":
     print("PROVIDER FACTORY TEST")
     print("=" * 60)
 
-    import os
-    from ..core.config import load_config, _create_default_config
+    from ..core.config import load_config
 
     # Create test config with API keys from environment
-    config = _create_default_config()
-
-    # Set API keys from environment
-    if 'gemini' in config.providers:
-        config.providers['gemini'].api_key = os.getenv("GEMINI_API_KEY", "")
-    if 'openrouter' in config.providers:
-        config.providers['openrouter'].api_key = os.getenv("OPENROUTER_API_KEY", "")
+    config = load_config("config.yaml")
 
     # Test 1: Create factory
     try:
@@ -236,7 +229,7 @@ if __name__ == "__main__":
         print(f"    Current provider: {factory.current_provider_name}")
     except ProviderError as e:
         print(f"  ✗ Factory creation failed: {e}")
-        print("  Set GEMINI_API_KEY or OPENROUTER_API_KEY to test")
+        print("  Set provider API keys in the environment to test")
         exit()
 
     # Test 2: Check current provider

@@ -6,7 +6,7 @@ import os
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.core.config import _create_default_config
+from src.core.config import load_config
 from src.core.logger import setup_root_logger
 from src.providers.base import BaseProvider, FinishReason, GenerationResult
 from src.providers.gemini import GeminiProvider
@@ -47,10 +47,10 @@ def test_load_balancer():
 
     from unittest.mock import Mock
 
-    # Create mock providers
+    config = load_config("config.yaml")
     providers = {
-        'gemini': Mock(spec=BaseProvider),
-        'openai': Mock(spec=BaseProvider)
+        name: Mock(spec=BaseProvider)
+        for name in config.get_active_providers()
     }
 
     # Test adaptive strategy
@@ -68,13 +68,17 @@ def test_load_balancer():
     print(f"  ✓ Round robin: {names}")
 
     # Test metrics recording
-    balancer.record_result('gemini', True, 500)
-    balancer.record_result('gemini', True, 600)
-    balancer.record_result('openai', False, 0)
+    provider_names = list(providers.keys())
+    if provider_names:
+        balancer.record_result(provider_names[0], True, 500)
+        balancer.record_result(provider_names[0], True, 600)
+    if len(provider_names) > 1:
+        balancer.record_result(provider_names[1], False, 0)
 
     metrics = balancer.get_metrics()
-    print(f"  ✓ Gemini requests: {metrics['gemini']['total_requests']}")
-    print(f"  ✓ OpenAI failures: {metrics['openai']['failed_requests']}")
+    for name in provider_names:
+        print(f"  ✓ {name} requests: {metrics[name]['total_requests']}")
+        print(f"  ✓ {name} failures: {metrics[name]['failed_requests']}")
 
     return True
 
@@ -85,28 +89,22 @@ def test_provider_availability():
     print("TEST: Provider Availability")
     print("=" * 50)
 
-    config = _create_default_config()
+    config = load_config("config.yaml")
 
-    # Test Gemini
-    gemini_config = config.providers.get('gemini')
-    if gemini_config:
-        gemini = GeminiProvider(gemini_config)
-        available = gemini.is_available()
-        print(f"  - Gemini: {'✓ Available' if available else '✗ Not available (no API key)'}")
+    providers = {
+        "gemini": GeminiProvider,
+        "openrouter": OpenRouterProvider,
+        "openai": OpenAIProvider,
+    }
 
-    # Test OpenRouter
-    openrouter_config = config.providers.get('openrouter')
-    if openrouter_config:
-        openrouter = OpenRouterProvider(openrouter_config)
-        available = openrouter.is_available()
-        print(f"  - OpenRouter: {'✓ Available' if available else '✗ Not available (no API key)'}")
-
-    # Test OpenAI
-    openai_config = config.providers.get('openai')
-    if openai_config:
-        openai = OpenAIProvider(openai_config)
-        available = openai.is_available()
-        print(f"  - OpenAI: {'✓ Available' if available else '✗ Not available (no API key)'}")
+    for name in config.get_active_providers():
+        provider_config = config.providers.get(name)
+        provider_class = providers.get(name)
+        if provider_config and provider_class:
+            provider = provider_class(provider_config)
+            available = provider.is_available()
+            status = "✓ Available" if available else "✗ Not available (no API key)"
+            print(f"  - {name}: {status}")
 
     return True
 

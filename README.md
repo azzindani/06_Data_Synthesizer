@@ -266,6 +266,7 @@ monitoring:
 ```bash
 # API Keys (required)
 GEMINI_API_KEY=your_gemini_key
+GEMINI_API_KEYS=key1,key2,key3  # optional multi-key rotation for Gemini
 OPENROUTER_API_KEY=your_openrouter_key
 OPENAI_API_KEY=your_openai_key
 
