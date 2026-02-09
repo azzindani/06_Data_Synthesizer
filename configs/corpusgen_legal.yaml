@@ -1,0 +1,332 @@
+# Legal Corpus Generation (Gemini) - mirrored from corpusgen-legal-gemini-prodv1.ipynb
+
+domain:
+  name: "Comprehensive Legal Corpus"
+  target_language: "en"
+  generation_mode: "full_document"
+  include_sentiment_analysis: true
+  approach: "no_source"
+  num_variants: 1
+  max_text_length: 15000
+  min_text_length: 200
+
+legal_corpus_taxonomy:
+  corpus_categories:
+    - "Corporate & Commercial"
+    - "Contracts & Negotiation"
+    - "Litigation & Dispute"
+    - "Legal Analysis & Advisory"
+    - "Regulatory & Compliance"
+    - "Employment & HR"
+    - "Real Estate & Property"
+    - "Finance, Banking & Insurance"
+    - "International & Trade"
+    - "Emerging Tech & IP"
+    - "Civil & Criminal Procedure"
+    - "Legal Education & Training"
+    - "Meta-Legal Reasoning & Strategic Intelligence"
+  document_types:
+    "Corporate & Commercial":
+      - "Company Policies and Code of Conduct"
+      - "Corporate Governance Manuals"
+      - "Compliance Handbooks and Internal Guidelines"
+      - "Risk Disclosure Statements"
+      - "M&A Due Diligence Reports"
+      - "Transaction Term Sheets"
+      - "Board Meeting Minutes and Resolutions"
+      - "Internal Audit Reports"
+      - "Procurement Policy Documents"
+      - "Vendor Evaluation Forms"
+    "Contracts & Negotiation":
+      - "Clause Libraries by Legal Topic"
+      - "Contract Addendums and Side Letters"
+      - "Redlined Contract Versions"
+      - "Negotiation Transcripts between Counsel"
+      - "Lawyer–Client Advisory Memos"
+      - "Contract Risk Annotations and Commentaries"
+      - "Clause Variant Libraries"
+      - "Confidential Side Agreements"
+      - "Term Sheets and Deal Summaries"
+      - "Internal Draft Review Notes"
+    "Litigation & Dispute":
+      - "Pleadings and Complaints"
+      - "Answers, Replies, and Counterclaims"
+      - "Motions and Petitions"
+      - "Court Orders (Synthetic Drafts)"
+      - "Judgment and Verdict Summaries"
+      - "Settlement Agreements"
+      - "Legal Briefs and Memoranda of Law"
+      - "Evidence Summaries and Descriptions"
+      - "Witness Statements and Depositions"
+      - "Full Case File Compilations"
+    "Legal Analysis & Advisory":
+      - "Internal Legal Memos and Notes"
+      - "Formal Legal Opinions and Advisory Letters"
+      - "Case Analysis and Reasoning Summaries"
+      - "Comparative Law Reports"
+      - "Risk Assessment Reports and Matrices"
+      - "Interpretation Guides and Policy Explanations"
+      - "Regulatory Impact Assessments"
+      - "Legislative Commentary Drafts"
+      - "Internal Legal Research Notes"
+      - "Counsel Review Summaries"
+    "Regulatory & Compliance":
+      - "Compliance Checklists and Evaluation Sheets"
+      - "Regulatory Filing Templates and Forms"
+      - "Self-Audit Reports and Control Logs"
+      - "Inspection Reports"
+      - "Policy Implementation Guides"
+      - "Data Protection Impact Assessments"
+      - "Licensing Application Examples"
+      - "Regulatory Correspondence Letters"
+      - "Internal Compliance Monitoring Reports"
+      - "Industry-Specific Compliance Manuals"
+    "Employment & HR":
+      - "Employee Handbooks and Policy Guides"
+      - "HR Compliance Manuals"
+      - "Disciplinary Procedure Templates"
+      - "Whistleblower Protection Policies"
+      - "Labor Dispute Case Summaries"
+      - "Internal Complaint Reports"
+      - "Workplace Investigation Reports"
+      - "Employment Offer Letters"
+      - "Termination and Severance Agreements"
+      - "Performance Contract Templates"
+    "Real Estate & Property":
+      - "Lease Templates"
+      - "Title Transfer Forms and Declarations"
+      - "Property Sale and Purchase Agreements"
+      - "Mortgage and Financing Contracts"
+      - "Zoning and Planning Compliance Summaries"
+      - "Property Due Diligence Reports"
+      - "Environmental Compliance Documents"
+      - "Construction Contract Variants"
+      - "Inspection Certificates and Reports"
+      - "Landlord–Tenant Dispute Files"
+    "Finance, Banking & Insurance":
+      - "Loan Agreement Variants"
+      - "Credit Risk Evaluation Reports"
+      - "KYC and AML Policy Documents"
+      - "Investment Prospectus Sections"
+      - "Insurance Policy Templates"
+      - "Claim Processing Reports"
+      - "Financial Regulatory Filings (Synthetic)"
+      - "Underwriting Guidelines"
+      - "Audit Reports (Synthetic Narratives)"
+      - "Risk Disclosure Summaries"
+    "International & Trade":
+      - "Trade Agreement Drafts"
+      - "Customs Compliance Manuals"
+      - "Import–Export Policy Guides"
+      - "Sanctions Screening Procedures"
+      - "Cross-Border Transaction Summaries"
+      - "Treaty Interpretation Notes"
+      - "Diplomatic Communication Samples"
+      - "International Arbitration Clauses"
+      - "Supply Chain Compliance Documents"
+      - "Global Regulatory Framework Comparisons"
+    "Emerging Tech & IP":
+      - "Data Privacy Policy Templates"
+      - "Cybersecurity Incident Reports"
+      - "AI Governance and Ethics Guidelines"
+      - "Technology Licensing Agreements"
+      - "Patent Assignment Declarations"
+      - "Digital Evidence Reports"
+      - "Terms of Use and Privacy Policy Variants"
+      - "Blockchain Smart Contract Summaries"
+      - "AI Bias and Ethics Audit Reports"
+      - "Software Compliance Declarations"
+    "Civil & Criminal Procedure":
+      - "Police Reports (Synthetic Narratives)"
+      - "Investigation Summaries"
+      - "Civil Case Summaries"
+      - "Sentencing Memoranda"
+      - "Plea Bargain Templates"
+      - "Evidence Chain-of-Custody Forms"
+      - "Expert Witness Reports"
+      - "Jury Instruction Examples"
+      - "Victim or Witness Statements"
+      - "Appeal Briefs (Synthetic Cases)"
+    "Legal Education & Training":
+      - "Hypothetical Case Studies"
+      - "Law School Exam Problems"
+      - "Legal Essay Examples"
+      - "Moot Court Case Packs"
+      - "Legal Drafting Exercises"
+      - "Model Case Answers and Summaries"
+      - "Reasoning Practice Scenarios"
+      - "Legal Ethics and Professional Conduct Scenarios"
+      - "Debate or Oral Argument Transcripts"
+      - "Synthetic Academic Law Articles"
+    "Meta-Legal Reasoning & Strategic Intelligence":
+      - "Negotiation Psychology Notes"
+      - "Power Dynamics and Leverage Analysis"
+      - "Strategic Litigation Planning Documents"
+      - "Judge Behavioral Profiles"
+      - "Jury Sentiment Prediction Models"
+      - "Evidentiary Strength Assessment Memos"
+      - "Moral vs. Tactical Decision Case Studies"
+      - "Risk Appetite and Exposure Evaluation Reports"
+      - "Synthetic Crisis Response Playbooks"
+      - "Cross-Border Regulatory Risk Assessment Reports"
+  industries:
+    - "Technology & Software"
+    - "Finance & Banking"
+    - "Healthcare & Pharmaceuticals"
+    - "Manufacturing & Industrial"
+    - "Energy & Utilities"
+    - "Real Estate & Construction"
+    - "Government & Public Sector"
+    - "Retail & E-commerce"
+    - "Transportation & Logistics"
+    - "Telecommunications"
+    - "Education & Research"
+    - "Media & Entertainment"
+  jurisdictions:
+    - "US Federal Law"
+    - "European Union Law"
+    - "Singapore Law"
+    - "Indonesian Law"
+    - "UK Law"
+    - "International Law"
+    - "Australian Law"
+    - "Canadian Law"
+  perspectives:
+    - "Plaintiff/Claimant"
+    - "Defendant/Respondent"
+    - "Neutral Observer"
+    - "Regulatory Authority"
+    - "Corporate Counsel"
+    - "External Advisor"
+    - "Investigator"
+    - "Compliance Officer"
+  sentiment_bias:
+    - "Strongly Favorable"
+    - "Moderately Favorable"
+    - "Neutral/Balanced"
+    - "Moderately Critical"
+    - "Strongly Critical"
+  complexity_levels:
+    - "Basic/Introductory"
+    - "Intermediate"
+    - "Advanced"
+    - "Expert/Technical"
+  metadata:
+    document_length:
+      - "Short (1-3 pages)"
+      - "Medium (3-8 pages)"
+      - "Long (8-15 pages)"
+      - "Very Long (15+ pages)"
+    formality: ["Formal", "Semi-Formal", "Technical"]
+    urgency: ["Routine", "Important", "Urgent", "Critical"]
+
+prompts:
+  system_prompt: |
+    You are an experienced legal professional with expertise across multiple practice areas and
+    jurisdictions.
+
+    You create authentic legal documents that reflect real-world scenarios, including documents that:
+    - Represent different perspectives (plaintiff, defendant, neutral, regulatory)
+    - Contain appropriate sentiment and bias based on the author's position
+    - Use jurisdiction-appropriate language and citations
+    - Match the complexity level required
+    - Feel genuine, not templated
+
+    You understand that legal documents are rarely purely neutral - they often:
+    - Advocate for a position
+    - Frame facts strategically
+    - Emphasize certain aspects over others
+    - Reflect the author's perspective and interests
+
+    Your documents are realistic, professionally written, and contextually appropriate.
+
+  corpus_generation_prompt: |
+    Generate a complete, realistic {document_type} in the context of {category}.
+
+    DOCUMENT CONTEXT:
+    - Category: {category}
+    - Industry/Sector: {industry}
+    - Jurisdiction: {jurisdiction}
+    - Perspective: {perspective}
+    - Complexity Level: {complexity}
+    - Target Length: {length}
+    - Sentiment/Bias: {sentiment}
+
+    REQUIRED CHARACTERISTICS:
+    1. Authentic legal language appropriate for {jurisdiction}
+    2. Perspective should reflect {perspective} viewpoint with {sentiment} tone
+    3. Include realistic specifics: dates, amounts, parties, citations, references
+    4. Appropriate technical depth for {complexity} level
+    5. Natural formatting and structure for this document type
+    6. If sentiment is non-neutral, incorporate subtle bias through:
+       - Word choice and framing
+       - Emphasis on certain facts over others
+       - Tone and interpretation
+       - Risk characterization
+
+    SENTIMENT GUIDANCE:
+    - Strongly Favorable: Emphasize positives, minimize concerns, optimistic framing
+    - Moderately Favorable: Generally positive but acknowledge some limitations
+    - Neutral/Balanced: Objective, even-handed presentation
+    - Moderately Critical: Point out concerns, cautious tone, identify risks
+    - Strongly Critical: Emphasize problems, skeptical framing, highlight dangers
+
+    The document should feel authentic with:
+    - Real-world language and terminology
+    - Industry-appropriate references
+    - Realistic scenarios and fact patterns
+    - Natural variation in structure
+    - Actual details (not placeholders)
+
+    Generate the complete document now. Match the complexity and length requirements.
+
+    DOCUMENT:
+
+  sentiment_analysis_prompt: |
+    Analyze the sentiment, bias, and characteristics of this legal document:
+
+    {document_preview}
+
+    Context: {document_type} in {category}
+    Perspective: {perspective}
+
+    Provide a structured analysis (300-400 words):
+
+    1. SENTIMENT SCORE (-2 to +2):
+       - Overall sentiment rating
+       - Key indicators of bias
+       - Tone characterization
+
+    2. PERSPECTIVE ANALYSIS:
+       - How perspective influences presentation
+       - Whose interests are prioritized
+       - Balanced vs. advocate analysis
+
+    3. RISK CHARACTERIZATION:
+       - How risks are framed
+       - Severity language
+       - Mitigation emphasis
+
+    4. CONTENT QUALITY:
+       - Technical accuracy level
+       - Completeness
+       - Professional standard
+
+    ANALYSIS:
+
+notebook_config:
+  output_repository: "Azzindani/Legal_Corpus_Syn"
+  batch_size: 5
+  model_name: "gemini-2.5-flash"
+  temperature: 0.85
+  max_output_tokens: 50000
+  enable_sentiment_analysis: false
+  min_contract_length: 5000
+  target_language_confidence: 0.5
+  skip_processed_rows: true
+  progress_file: "synthesis_progress.json"
+  safety_settings:
+    HARM_CATEGORY_HARASSMENT: "BLOCK_NONE"
+    HARM_CATEGORY_HATE_SPEECH: "BLOCK_NONE"
+    HARM_CATEGORY_SEXUALLY_EXPLICIT: "BLOCK_NONE"
+    HARM_CATEGORY_DANGEROUS_CONTENT: "BLOCK_ONLY_HIGH"
