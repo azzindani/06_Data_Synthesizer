@@ -27,7 +27,7 @@ prompts:
     Buat {num_variants} pasangan pertanyaan-jawaban berkualitas tinggi tentang topik: "{topic}"
 
     PERSYARATAN:
-    1. Setiap jawaban minimal 100 kata, maksimal 1500 kata
+    1. Setiap jawaban minimal 100 kata, maksimal 2000 kata
     2. Gunakan bahasa Indonesia yang formal dan tepat
     3. Sertakan rujukan hukum yang relevan (pasal, undang-undang, peraturan)
     4. Gunakan terminologi hukum Indonesia yang benar
@@ -55,6 +55,16 @@ prompts:
 
 quality:
   min_answer_length: 100
-  max_answer_length: 1500
+  max_answer_length: 2000
   target_language: "id"
   language_confidence: 0.8
+
+notebook_config:
+  output_repository: "Azzindani/ID_Legal_QA_Syn"
+  model_name: "gemini-2.5-flash"
+  temperature: 0.7
+  max_output_tokens: 4000
+  questions_per_topic: 50
+  chunk_size: 20
+  target_language_confidence: 0.8
+  progress_file: "synthesis_progress.json"
