@@ -1,0 +1,197 @@
+# =============================================================================
+# DATA SYNTHESIZER — DOMAIN CONFIG TEMPLATE
+# =============================================================================
+# Copy this file to create a new synthesis config.
+# Set synthesis.domain_config in config.yaml to point to your copy, or pass
+# it directly: load_config("config.yaml", domain_config_path="configs/my.yaml")
+#
+# Environment variable syntax (works in any string value):
+#   ${VAR}            uses os.environ["VAR"] or ""
+#   ${VAR:-fallback}  uses os.environ["VAR"] or "fallback" if not set
+#
+# Example:
+#   output_repository: "${OUTPUT_REPO:-Azzindani/My_Dataset}"
+# =============================================================================
+
+
+# =============================================================================
+# META — what this config is for
+# =============================================================================
+meta:
+  name: "my-synthesis"                # short machine-friendly identifier
+  description: "My data synthesis"    # human-readable description
+  version: "1.0"
+  # synthesis_type controls which synthesizer the runner selects:
+  #   qa            — topic-driven QA pairs (no source document)
+  #   deep_thinking — topic-driven QA with long chain-of-thought thinking
+  #   corpus        — free-form document generation (legal, contract, etc.)
+  #   source_qa     — QA pairs grounded in a source HuggingFace dataset
+  #   source_corpus — corpus derived from an existing HuggingFace dataset
+  synthesis_type: "qa"
+
+
+# =============================================================================
+# RUN CONFIG — all per-run parameters
+# =============================================================================
+run_config:
+
+  # ---- Model / API -------------------------------------------------------
+  model_name: "gemini-2.5-flash"   # LLM model to use
+  temperature: 0.7                  # generation temperature (0.0–1.0)
+  max_output_tokens: 65536          # max tokens per response (Gemini: 65536)
+  top_p: 0.8                        # nucleus sampling parameter
+  top_k: 40                         # top-k sampling parameter
+  rate_limit_delay: 4               # seconds to wait between API requests
+
+  # ---- HuggingFace I/O ---------------------------------------------------
+  # For source-based runs (source_qa / source_corpus) set input_repository.
+  # For all runs set output_repository.
+  input_repository: ""              # e.g. "Azzindani/Indonesian_Legal_QA"
+  output_repository: "${OUTPUT_REPO:-username/dataset-name}"
+
+  # ---- Column mappings ---------------------------------------------------
+  # These define the column names that appear in the output DataFrame / parquet.
+  # Change them to match the naming convention of your downstream pipeline.
+  question_column: "question"       # name for the question field in output
+  answer_column: "answer"           # name for the answer field in output
+  thinking_column: "thinking"       # name for chain-of-thought field (or leave as "thinking")
+  instruction_column: ""            # name for instruction field (leave "" to omit)
+  corpus_column: "text"             # column in *input* dataset containing source text
+  id_column: "id"                   # column in input dataset used as row id
+
+  # ---- Processing --------------------------------------------------------
+  batch_size: 5                     # items per processing batch
+  questions_per_topic: 50           # target QA pairs per topic
+  chunk_size: 20                    # text chunk size for source-based runs
+  skip_processed_rows: true         # resume: skip already-processed rows/topics
+  progress_file: "synthesis_progress.json"
+  target_language_confidence: 0.8   # langid confidence threshold
+
+  # ---- Safety settings ---------------------------------------------------
+  safety_settings:
+    HARM_CATEGORY_HARASSMENT: "BLOCK_NONE"
+    HARM_CATEGORY_HATE_SPEECH: "BLOCK_NONE"
+    HARM_CATEGORY_SEXUALLY_EXPLICIT: "BLOCK_NONE"
+    HARM_CATEGORY_DANGEROUS_CONTENT: "BLOCK_ONLY_HIGH"
+
+
+# =============================================================================
+# SCHEMA — output DataFrame column definitions
+# =============================================================================
+# Defines exactly which columns appear in the saved parquet file, their types,
+# and whether they are required.
+#
+# source values:
+#   generated  — produced by the LLM
+#   input      — copied from the source dataset
+#   metadata   — added by the synthesizer (topic, timestamp, provider, …)
+#   computed   — derived from generated content (lengths, word counts, …)
+#
+# If you leave schema.columns empty, ALL keys from the result dicts are
+# written to the DataFrame (passthrough / development mode).
+# =============================================================================
+schema:
+  columns:
+    # --- Core content ---
+    - name: question          # matches run_config.question_column
+      type: string
+      source: generated
+      required: true
+
+    - name: answer            # matches run_config.answer_column
+      type: string
+      source: generated
+      required: true
+
+    - name: thinking          # matches run_config.thinking_column; omit for plain QA
+      type: string
+      source: generated
+      required: false
+      default: ""
+
+    # --- Metadata ---
+    - name: topic
+      type: string
+      source: metadata
+      required: true
+
+    - name: timestamp
+      type: string
+      source: metadata
+      required: false
+
+    - name: provider
+      type: string
+      source: metadata
+      required: false
+
+    # --- Computed measurements ---
+    - name: question_length
+      type: int
+      source: computed
+      required: false
+
+    - name: answer_length
+      type: int
+      source: computed
+      required: false
+
+
+# =============================================================================
+# DOMAIN — domain-specific settings used by the synthesizer
+# =============================================================================
+domain:
+  name: "My Domain"
+  target_language: "id"    # ISO 639-1 language code
+  num_variants: 5           # QA pairs generated per LLM call
+  topics:
+    - "Topic 1"
+    - "Topic 2"
+    - "Topic 3"
+
+
+# =============================================================================
+# QUALITY — validation thresholds (override global config.yaml values here)
+# =============================================================================
+quality:
+  min_answer_length: 100      # characters
+  max_answer_length: 2000     # characters
+  min_question_length: 15     # characters
+  max_question_length: 1500   # characters
+  target_language: "id"
+  language_confidence: 0.8
+  min_quality_score: 0.6
+
+
+# =============================================================================
+# PROMPTS — prompt templates used by the synthesizer
+# =============================================================================
+prompts:
+  system_prompt: |
+    You are an expert assistant. Your task is to create high-quality
+    question-answer pairs that help people understand various aspects of the domain.
+
+  prompt_template: |
+    Create {num_variants} high-quality question-answer pairs about: "{topic}"
+
+    REQUIREMENTS:
+    1. Each answer should be at least 100 words
+    2. Use accurate information
+    3. Vary difficulty levels (basic to advanced)
+
+    FORMAT (JSON array only):
+    [
+      {{"question": "question 1 about {topic}", "answer": "comprehensive answer 1"}},
+      {{"question": "question 2 about {topic}", "answer": "comprehensive answer 2"}}
+    ]
+
+
+# =============================================================================
+# THINKING REQUIREMENTS — only needed for deep_thinking synthesis_type
+# =============================================================================
+# thinking_requirements:
+#   min_thinking_words: 500
+#   max_thinking_words: 1500
+#   min_answer_words: 100
+#   max_answer_words: 300
+#   required_iterations: 3

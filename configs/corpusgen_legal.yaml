@@ -1,5 +1,11 @@
 # Legal Corpus Generation (Gemini) - mirrored from corpusgen-legal-gemini-prodv1.ipynb
 
+meta:
+  name: "corpusgen-legal-gemini"
+  description: "Comprehensive legal document corpus generation (English)"
+  version: "1.0"
+  synthesis_type: "corpus"
+
 domain:
   name: "Comprehensive Legal Corpus"
   target_language: "en"
@@ -314,8 +320,18 @@ prompts:
 
     ANALYSIS:
 
-notebook_config:
-  output_repository: "Azzindani/Legal_Corpus_Syn"
+schema:
+  columns:
+    - {name: document_text,    type: string, source: generated, required: true}
+    - {name: document_type,    type: string, source: metadata,  required: true}
+    - {name: word_count,       type: int,    source: computed,  required: false}
+    - {name: char_count,       type: int,    source: computed,  required: false}
+    - {name: sentiment_score,  type: float,  source: computed,  required: false}
+    - {name: timestamp,        type: string, source: metadata,  required: false}
+    - {name: provider,         type: string, source: metadata,  required: false}
+
+run_config:
+  output_repository: "${OUTPUT_REPO:-Azzindani/Legal_Corpus_Syn}"
   batch_size: 5
   model_name: "gemini-2.5-flash"
   temperature: 0.85

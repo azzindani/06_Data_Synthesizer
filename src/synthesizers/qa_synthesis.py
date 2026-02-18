@@ -101,8 +101,9 @@ FORMAT (JSON array only, no additional text):
         if not results:
             return
 
-        # Create DataFrame
-        df = pd.DataFrame(results)
+        # Build DataFrame via schema (falls back to passthrough if schema empty)
+        from ..core.schema_builder import DynamicSchemaBuilder
+        df = DynamicSchemaBuilder(self.config.schema).build_dataframe(results)
 
         # Clean topic name for filename
         clean_topic = re.sub(r'[^\w\s-]', '', topic).strip().replace(' ', '_')

@@ -1,5 +1,11 @@
 # Legal LQA Generation (Gemini) - mirrored from legallqagen-gemini-prodv1.ipynb
 
+meta:
+  name: "legallqagen-gemini"
+  description: "Deep Thinking English Legal QA generation (no source document)"
+  version: "1.0"
+  synthesis_type: "deep_thinking"
+
 domain:
   name: "Deep Thinking Legal QA Dataset"
   target_language: "en"
@@ -153,8 +159,23 @@ prompts:
 
     Generate complete example:
 
-notebook_config:
-  output_repository: "Azzindani/Legal_QA_Syn"
+schema:
+  columns:
+    - {name: question,             type: string, source: generated, required: true}
+    - {name: thinking,             type: string, source: generated, required: true}
+    - {name: answer,               type: string, source: generated, required: true}
+    - {name: topic,                type: string, source: metadata,  required: true}
+    - {name: question_length,      type: int,    source: computed,  required: false}
+    - {name: thinking_word_count,  type: int,    source: computed,  required: false}
+    - {name: answer_word_count,    type: int,    source: computed,  required: false}
+    - {name: timestamp,            type: string, source: metadata,  required: false}
+    - {name: provider,             type: string, source: metadata,  required: false}
+
+run_config:
+  output_repository: "${OUTPUT_REPO:-Azzindani/Legal_QA_Syn}"
+  question_column: "question"
+  answer_column: "answer"
+  thinking_column: "thinking"
   model_name: "gemini-2.5-flash"
   temperature: 0.85
   max_output_tokens: 65536

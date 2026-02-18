@@ -1,5 +1,11 @@
 # Corpus QA (Iterative Deep Thinking) - mirrored from corpusqa-syndeepthink-gemini-prodv1.ipynb
 
+meta:
+  name: "corpusqa-deepthinking"
+  description: "Source-grounded Indonesian Legal Corpus QA with deep thinking"
+  version: "1.0"
+  synthesis_type: "source_qa"
+
 domain:
   name: "Indonesian Legal Corpus Analysis"
   target_language: "id"
@@ -86,10 +92,24 @@ prompts:
         {"question": "pertanyaan 2", "thinking": "Langkah 1: Pemahaman... Langkah 2: Assessment... Langkah 3: Konklusi... (minimal 400 kata)", "answer": "jawaban langsung 2"}
       ]
 
-notebook_config:
-  source_dataset: "joelniklaus/legal_case_document_summarization"
-  output_repository: "Azzindani/Legal_Corpus_QA_SynDeepThink"
+schema:
+  columns:
+    - {name: question,        type: string, source: generated, required: true}
+    - {name: thinking,        type: string, source: generated, required: true}
+    - {name: answer,          type: string, source: generated, required: true}
+    - {name: source_text,     type: string, source: input,     required: false}
+    - {name: question_length, type: int,    source: computed,  required: false}
+    - {name: answer_length,   type: int,    source: computed,  required: false}
+    - {name: timestamp,       type: string, source: metadata,  required: false}
+    - {name: provider,        type: string, source: metadata,  required: false}
+
+run_config:
+  input_repository: "${INPUT_REPO:-joelniklaus/legal_case_document_summarization}"
+  output_repository: "${OUTPUT_REPO:-Azzindani/Legal_Corpus_QA_SynDeepThink}"
   corpus_column: "judgement"
+  question_column: "question"
+  answer_column: "answer"
+  thinking_column: "thinking"
   batch_size: 50
   model_name: "gemini-2.5-flash"
   temperature: 0.8

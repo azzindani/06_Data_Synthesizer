@@ -1,5 +1,11 @@
 # Gemini Any (Iterative Deep Thinking) - mirrored from gemini-any-syndeepthink-prod-v1.ipynb
 
+meta:
+  name: "gemini-any-syndeepthink"
+  description: "Topic-driven Indonesian Legal QA with iterative deep thinking"
+  version: "1.0"
+  synthesis_type: "deep_thinking"
+
 domain:
   name: "Indonesian Legal System - Iterative Deep Thinking"
   target_language: "id"
@@ -134,8 +140,25 @@ quality:
   target_language: "id"
   language_confidence: 0.8
 
-notebook_config:
-  output_repository: "Azzindani/ID_Legal_QA_SynDeepThink"
+schema:
+  columns:
+    - {name: question,             type: string, source: generated, required: true}
+    - {name: thinking,             type: string, source: generated, required: true}
+    - {name: answer,               type: string, source: generated, required: true}
+    - {name: topic,                type: string, source: metadata,  required: true}
+    - {name: question_length,      type: int,    source: computed,  required: false}
+    - {name: thinking_length,      type: int,    source: computed,  required: false}
+    - {name: answer_length,        type: int,    source: computed,  required: false}
+    - {name: thinking_word_count,  type: int,    source: computed,  required: false}
+    - {name: answer_word_count,    type: int,    source: computed,  required: false}
+    - {name: timestamp,            type: string, source: metadata,  required: false}
+    - {name: provider,             type: string, source: metadata,  required: false}
+
+run_config:
+  output_repository: "${OUTPUT_REPO:-Azzindani/ID_Legal_QA_SynDeepThink}"
+  question_column: "question"
+  answer_column: "answer"
+  thinking_column: "thinking"
   model_name: "gemini-2.5-flash"
   temperature: 0.7
   max_output_tokens: 65536
