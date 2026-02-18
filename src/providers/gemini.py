@@ -46,8 +46,8 @@ class GeminiProvider(BaseProvider):
                 generation_config=genai.types.GenerationConfig(
                     temperature=self.temperature,
                     max_output_tokens=self.max_output_tokens,
-                    top_p=0.8,
-                    top_k=40
+                    top_p=self.top_p,
+                    top_k=self.top_k
                 )
             )
             self.logger.debug(f"Gemini client initialized with model {self.model}")
@@ -104,8 +104,8 @@ class GeminiProvider(BaseProvider):
                             generation_config=self._client.types.GenerationConfig(
                                 temperature=self.temperature,
                                 max_output_tokens=self.max_output_tokens,
-                                top_p=0.8,
-                                top_k=40
+                                top_p=self.top_p,
+                                top_k=self.top_k
                             ),
                             system_instruction=system_prompt
                         )

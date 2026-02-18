@@ -13,7 +13,9 @@ class ProviderConfig:
     name: str
     model: str
     temperature: float = 0.7
-    max_output_tokens: int = 8000
+    max_output_tokens: int = 65536
+    top_p: float = 0.8
+    top_k: int = 40
     rate_limit_delay: float = 4.0
     api_key: str = ""
 
@@ -154,7 +156,9 @@ def _create_default_config() -> Config:
         name="gemini",
         model="gemini-2.5-flash",
         temperature=0.7,
-        max_output_tokens=8000,
+        max_output_tokens=65536,
+        top_p=0.8,
+        top_k=40,
         rate_limit_delay=4.0
     )
 
@@ -163,7 +167,9 @@ def _create_default_config() -> Config:
         name="openrouter",
         model="google/gemini-flash-1.5",
         temperature=0.7,
-        max_output_tokens=8000,
+        max_output_tokens=65536,
+        top_p=0.8,
+        top_k=40,
         rate_limit_delay=2.0
     )
 
@@ -196,7 +202,9 @@ def _parse_config(data: dict) -> Config:
             name=provider_name,
             model=provider_data.get("model", ""),
             temperature=provider_data.get("temperature", 0.7),
-            max_output_tokens=provider_data.get("max_output_tokens", 8000),
+            max_output_tokens=provider_data.get("max_output_tokens", 65536),
+            top_p=provider_data.get("top_p", 0.8),
+            top_k=provider_data.get("top_k", 40),
             rate_limit_delay=provider_data.get("rate_limit_delay", 4.0),
             api_key=provider_data.get("api_key", "")
         )

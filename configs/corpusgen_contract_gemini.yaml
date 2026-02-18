@@ -178,7 +178,7 @@ notebook_config:
   batch_size: 5
   model_name: "gemini-2.5-flash"
   temperature: 0.85
-  max_output_tokens: 50000
+  max_output_tokens: 65536
   enable_fairness_analysis: true
   min_contract_length: 5000
   target_language_confidence: 0.5

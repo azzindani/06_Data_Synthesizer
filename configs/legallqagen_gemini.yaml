@@ -157,7 +157,7 @@ notebook_config:
   output_repository: "Azzindani/Legal_QA_Syn"
   model_name: "gemini-2.5-flash"
   temperature: 0.85
-  max_output_tokens: 6000
+  max_output_tokens: 65536
   batch_size: 5
   target_language_confidence: 0.5
   progress_file: "legal_qa_deep_thinking_progress.json"
