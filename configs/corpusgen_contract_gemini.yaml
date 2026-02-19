@@ -1,5 +1,11 @@
 # Contract Corpus Generation (Gemini) - mirrored from corpusgen-contract-gemini-prodv1.ipynb
 
+meta:
+  name: "corpusgen-contract-gemini"
+  description: "Legal contract & agreement corpus generation (English)"
+  version: "1.0"
+  synthesis_type: "corpus"
+
 domain:
   name: "Legal Contract & Agreement Corpus"
   target_language: "en"
@@ -173,12 +179,21 @@ prompts:
 
     ANALYSIS:
 
-notebook_config:
-  output_repository: "Azzindani/Legal_Contract_Syn"
+schema:
+  columns:
+    - {name: document_text,   type: string, source: generated, required: true}
+    - {name: document_type,   type: string, source: metadata,  required: true}
+    - {name: word_count,      type: int,    source: computed,  required: false}
+    - {name: char_count,      type: int,    source: computed,  required: false}
+    - {name: timestamp,       type: string, source: metadata,  required: false}
+    - {name: provider,        type: string, source: metadata,  required: false}
+
+run_config:
+  output_repository: "${OUTPUT_REPO:-Azzindani/Legal_Contract_Syn}"
   batch_size: 5
   model_name: "gemini-2.5-flash"
   temperature: 0.85
-  max_output_tokens: 50000
+  max_output_tokens: 65536
   enable_fairness_analysis: true
   min_contract_length: 5000
   target_language_confidence: 0.5

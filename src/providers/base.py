@@ -66,6 +66,8 @@ class BaseProvider(ABC):
         self.model = config.model
         self.temperature = config.temperature
         self.max_output_tokens = config.max_output_tokens
+        self.top_p = config.top_p
+        self.top_k = config.top_k
         self.rate_limit_delay = config.rate_limit_delay
         self.api_key = config.api_key
 

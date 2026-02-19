@@ -57,7 +57,7 @@ class OpenRouterProvider(BaseProvider):
             "messages": messages,
             "temperature": self.temperature,
             "max_tokens": self.max_output_tokens,
-            "top_p": 0.8
+            "top_p": self.top_p
         }
 
         headers = {

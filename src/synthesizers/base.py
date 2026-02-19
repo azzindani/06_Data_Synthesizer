@@ -156,6 +156,9 @@ class BaseSynthesizer(ABC):
     def _process_variants(self, variants: List[Dict], original: Dict, item_id: str) -> List[Dict]:
         """Process and validate generated variants.
 
+        Column names for question/answer/thinking come from
+        ``config.run_config`` so they can be overridden per domain config.
+
         Args:
             variants: List of generated variants
             original: Original item data
@@ -166,6 +169,11 @@ class BaseSynthesizer(ABC):
         """
         results = []
         quality_config = self.config.quality
+        rc = self.config.run_config
+
+        q_col = rc.question_column   # e.g. "question" or "prompt"
+        a_col = rc.answer_column     # e.g. "answer" or "response"
+        t_col = rc.thinking_column   # e.g. "thinking" or "reasoning"
 
         for i, variant in enumerate(variants):
             question = variant.get('question', '').strip()
@@ -187,11 +195,12 @@ class BaseSynthesizer(ABC):
             result = {
                 'item_id': item_id,
                 'variant_number': i + 1,
-                'question': question,
-                'answer': answer,
-                'thinking': thinking,
-                'question_length': len(question),
-                'answer_length': len(answer),
+                q_col: question,
+                a_col: answer,
+                t_col: thinking,
+                f'{q_col}_length': len(question),
+                f'{a_col}_length': len(answer),
+                'topic': original.get('topic', ''),
                 'timestamp': datetime.now().isoformat(),
                 'provider': self.provider.current_provider_name
             }
@@ -212,10 +221,14 @@ class BaseSynthesizer(ABC):
         if not results:
             return {}
 
+        rc = self.config.run_config
+        q_len_key = f'{rc.question_column}_length'
+        a_len_key = f'{rc.answer_column}_length'
+
         stats = {
             'count': len(results),
-            'avg_question_length': sum(r['question_length'] for r in results) / len(results),
-            'avg_answer_length': sum(r['answer_length'] for r in results) / len(results),
+            'avg_question_length': sum(r.get(q_len_key, 0) for r in results) / len(results),
+            'avg_answer_length': sum(r.get(a_len_key, 0) for r in results) / len(results),
             'provider': results[0].get('provider', ''),
             'requests': 1
         }

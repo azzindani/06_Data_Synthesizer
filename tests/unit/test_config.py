@@ -18,7 +18,7 @@ class TestProviderConfig:
         assert config.name == "test"
         assert config.model == "test-model"
         assert config.temperature == 0.7
-        assert config.max_output_tokens == 8000
+        assert config.max_output_tokens == 65536
         assert config.rate_limit_delay == 4.0
 
     def test_api_key_from_environment(self, monkeypatch):
