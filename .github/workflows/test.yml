@@ -1,0 +1,65 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  unit-tests:
+    name: ${{ matrix.os }} / py${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run unit tests
+        run: pytest tests/unit -v -m "unit or not integration" --tb=short
+
+  docker-build:
+    # Docker is Linux-only on GitHub-hosted runners; the macOS runner has no
+    # Docker daemon and the Windows runner uses Windows containers (different
+    # base images entirely). Keep the smoke test on ubuntu.
+    name: Docker build + smoke test
+    runs-on: ubuntu-latest
+    needs: unit-tests
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: true
+          tags: data-synthesizer:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Smoke-test image (--dry-run)
+        run: |
+          docker run --rm \
+            -e GEMINI_API_KEY=dummy \
+            -e HUGGINGFACE_TOKEN=dummy \
+            data-synthesizer:ci --dry-run

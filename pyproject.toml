@@ -1,0 +1,13 @@
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+markers = [
+    "unit: fast tests with no external dependencies",
+    "integration: requires live API keys or network",
+    "slow: long-running tests",
+]
+filterwarnings = [
+    # google-generativeai prints a noisy FutureWarning on every import
+    # even though we deliberately pin to it until the new SDK stabilises.
+    "ignore::FutureWarning:google.generativeai",
+]

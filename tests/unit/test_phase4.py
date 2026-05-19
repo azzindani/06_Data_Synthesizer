@@ -191,7 +191,18 @@ class TestFileLock:
 
 
 class TestDashboard:
-    """Tests for dashboard server."""
+    """Tests for dashboard server.
+
+    Flask is an optional dep — these tests skip cleanly when it's absent
+    rather than failing CI.
+    """
+
+    pytestmark = [
+        pytest.mark.skipif(
+            __import__("importlib.util", fromlist=["find_spec"]).find_spec("flask") is None,
+            reason="flask not installed (optional dep)",
+        )
+    ]
 
     def test_dashboard_creation(self):
         """Test dashboard creation."""
