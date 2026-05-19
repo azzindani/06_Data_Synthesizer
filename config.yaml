@@ -34,6 +34,12 @@ synthesis:
   batch_size: 5
   questions_per_topic: 50
   num_variants: 5
+  # Hard ceiling on total generated rows. The worker exits cleanly when reached.
+  # Leave null (or 0) to use the implicit topics × questions_per_topic limit.
+  # Combined with multi-key Gemini auto-rotation + daily-quota wait, setting a
+  # target lets you treat this as an unstoppable cron job that stops only at
+  # target reached or SIGTERM.
+  target_rows: null
 
 # Output settings
 output:

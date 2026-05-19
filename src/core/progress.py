@@ -43,6 +43,8 @@ class ProgressManager:
             'request_count': 0,
             'start_time': None,
             'last_update': None,
+            'status': 'idle',          # idle | running | waiting | done
+            'waiting': None,           # populated when sleeping on rate/quota
             'errors': [],
             'statistics': {
                 'quality_counts': {'excellent': 0, 'good': 0, 'fair': 0, 'poor': 0},
@@ -238,6 +240,37 @@ class ProgressManager:
     def get_statistics(self) -> Dict:
         """Get current statistics."""
         return self.progress_data['statistics']
+
+    def set_waiting_state(self, reason: Optional[str] = None,
+                          until_iso: Optional[str] = None,
+                          **extra) -> None:
+        """Mark the run as waiting on an external resource (e.g. quota reset).
+
+        Pass ``reason=None`` to clear (synthesis resumes). The ``until_iso``
+        timestamp is what /progress exposes so external monitors know when
+        to check back.
+
+        Args:
+            reason: short tag, e.g. ``"gemini_daily_quota"``. ``None`` clears.
+            until_iso: ISO 8601 timestamp of expected resume.
+            **extra: any extra fields to attach to the waiting record.
+        """
+        if reason is None:
+            self.progress_data['status'] = 'running'
+            self.progress_data['waiting'] = None
+        else:
+            self.progress_data['status'] = 'waiting'
+            self.progress_data['waiting'] = {
+                'reason': reason,
+                'until': until_iso,
+                'since': datetime.now().isoformat(),
+                **extra,
+            }
+        try:
+            # Persist immediately so /progress reflects state during a long wait.
+            self.save(upload_to_hf=False)
+        except Exception as e:
+            self.logger.debug(f"Could not persist waiting state: {e}")
 
     def show_progress(self, total_expected: int = 0) -> None:
         """Display current progress.

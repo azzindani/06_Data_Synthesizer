@@ -37,7 +37,11 @@ class HealthCheckHandler(BaseHTTPRequestHandler):
             health['total_processed'] = progress.get('total_processed', 0)
             health['total_generated'] = progress.get('total_generated', 0)
             health['last_update'] = progress.get('last_update', 'unknown')
-        except:
+            health['run_status'] = progress.get('status', 'unknown')
+            waiting = progress.get('waiting')
+            if waiting:
+                health['waiting'] = waiting
+        except Exception:
             pass
 
         self._send_json(200, health)

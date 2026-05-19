@@ -64,10 +64,18 @@ class ProviderConfig:
     api_key: str = ""
 
     def __post_init__(self):
-        # Load API key from environment if not provided directly
+        # Load API key from environment if not provided directly.
+        # Accept either ``{NAME}_API_KEY`` (single / comma-separated) or
+        # ``{NAME}_API_KEYS`` (plural). Either form satisfies the validator;
+        # providers that support multi-key rotation (Gemini, OpenRouter)
+        # split commas + read the plural variant themselves.
         if not self.api_key:
-            env_key = f"{self.name.upper()}_API_KEY"
-            self.api_key = os.getenv(env_key, "")
+            name_upper = self.name.upper()
+            self.api_key = (
+                os.getenv(f"{name_upper}_API_KEY")
+                or os.getenv(f"{name_upper}_API_KEYS")
+                or ""
+            )
 
 
 @dataclass
@@ -158,6 +166,10 @@ class SynthesisConfig:
     batch_size: int = 5
     questions_per_topic: int = 50
     num_variants: int = 5
+    # Hard ceiling on total generated rows. When ``total_generated >= target_rows``
+    # the synthesis loop stops cleanly (progress saved, container exits 0).
+    # Leave ``None`` (or 0) to use the implicit ``topics × questions_per_topic`` limit.
+    target_rows: Optional[int] = None
 
 
 @dataclass

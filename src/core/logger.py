@@ -2,6 +2,7 @@
 
 import logging
 import sys
+from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
 from datetime import datetime
 from typing import Optional
@@ -42,12 +43,21 @@ def get_logger(name: str, log_file: Optional[str] = None, level: str = "INFO") -
     console_handler.setFormatter(console_format)
     logger.addHandler(console_handler)
 
-    # File handler with detailed format
+    # File handler — rotates daily, keeps 7 days. Critical for long-running
+    # cron-style synthesis jobs: a plain FileHandler grows unboundedly and
+    # would eventually fill the VPS disk.
     if log_file:
         log_path = Path(log_file)
         log_path.parent.mkdir(parents=True, exist_ok=True)
 
-        file_handler = logging.FileHandler(log_path, encoding='utf-8')
+        file_handler = TimedRotatingFileHandler(
+            log_path,
+            when="midnight",
+            interval=1,
+            backupCount=7,
+            encoding="utf-8",
+            utc=True,
+        )
         file_handler.setLevel(logging.DEBUG)
         file_format = logging.Formatter(
             '%(asctime)s | %(levelname)-8s | %(name)s | %(funcName)s:%(lineno)d | %(message)s',

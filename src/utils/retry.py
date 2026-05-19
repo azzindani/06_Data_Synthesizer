@@ -2,9 +2,10 @@
 
 import time
 import functools
-from typing import Callable, Tuple, Type, Any
+from typing import Callable, Tuple, Type, Any, Optional
 
 from ..core.logger import get_logger
+from ..core import shutdown
 
 
 def retry_with_backoff(
@@ -112,6 +113,80 @@ def retry_operation(
             time.sleep(delay)
 
     raise last_exception
+
+
+# ─── Transient-error helpers (used by provider implementations) ────────────
+
+_TRANSIENT_PATTERNS = (
+    "timeout", "timed out",
+    "network", "connection",
+    "internal server error", "internal error",
+    "bad gateway", "service unavailable", "gateway time-out",
+    " 500", " 502", " 503", " 504",
+    "500.", "502.", "503.", "504.",
+    "deadline exceeded", "unavailable",
+)
+
+
+def is_transient_error(err: Exception) -> bool:
+    """Best-effort classification of an exception as a retry-worthy transient.
+
+    Pattern-matches the string form because both the Google SDK and ``requests``
+    surface useful info in the message; the exception type is less reliable
+    (the SDK wraps things under a generic ``Exception``).
+    """
+    msg = str(err).lower()
+    return any(p in msg for p in _TRANSIENT_PATTERNS)
+
+
+def interruptible_transient_retry(
+    operation: Callable[[], Any],
+    *,
+    max_attempts: int = 3,
+    base_delay: float = 2.0,
+    max_delay: float = 30.0,
+    exponential_base: float = 2.0,
+    classifier: Callable[[Exception], bool] = is_transient_error,
+    logger_name: Optional[str] = None,
+) -> Any:
+    """Call ``operation`` and retry only on classified-transient exceptions.
+
+    Backoff is interruptible — SIGTERM during a sleep wakes immediately and
+    causes the operation to raise (preserving the typed exception so callers
+    can react). Non-transient exceptions propagate on the first occurrence.
+
+    Args:
+        operation: zero-arg callable performing the request.
+        max_attempts: total attempts (including the first one).
+        base_delay: initial backoff in seconds.
+        max_delay: cap on a single backoff window.
+        exponential_base: backoff multiplier.
+        classifier: returns True when an exception should be retried.
+
+    Returns:
+        Whatever ``operation`` returns.
+    """
+    logger = get_logger(logger_name or __name__)
+    last: Optional[Exception] = None
+
+    for attempt in range(1, max_attempts + 1):
+        try:
+            return operation()
+        except Exception as e:
+            last = e
+            if attempt == max_attempts or not classifier(e):
+                raise
+
+            delay = min(base_delay * (exponential_base ** (attempt - 1)), max_delay)
+            logger.warning(
+                f"Transient error (attempt {attempt}/{max_attempts}): {e} — "
+                f"retrying in {delay:.1f}s"
+            )
+            if not shutdown.interruptible_sleep(delay):
+                raise  # shutdown requested — surface the in-flight error
+
+    # Unreachable under normal control flow, kept to satisfy type-checkers.
+    raise last if last else RuntimeError("interruptible_transient_retry: unreachable")
 
 
 if __name__ == "__main__":

@@ -1,7 +1,5 @@
 """Base synthesizer class with common functionality."""
 
-import signal
-import sys
 from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Any, List, Dict, Optional
@@ -9,6 +7,7 @@ from typing import Any, List, Dict, Optional
 from ..core.config import Config
 from ..core.logger import get_logger
 from ..core.progress import ProgressManager
+from ..core import shutdown
 from ..providers.factory import ProviderFactory
 from ..providers.base import ProviderError, SafetyFilterError
 from ..utils.json_parser import parse_qa_variants
@@ -36,18 +35,36 @@ class BaseSynthesizer(ABC):
         # Initialize progress manager
         self.progress = ProgressManager(config)
 
-        # Shutdown flag
-        self._shutdown_requested = False
-        self._setup_signal_handlers()
+        # Process-wide SIGTERM/SIGINT handlers — sets the shared shutdown
+        # Event so blocking sleeps (e.g. Gemini's daily-quota wait) wake
+        # immediately. ``self._shutdown_requested`` is kept as a property
+        # delegating to the shared module so existing callers keep working.
+        shutdown.install_handlers()
 
-    def _setup_signal_handlers(self):
-        """Setup graceful shutdown handlers."""
-        def handle_shutdown(signum, frame):
-            self.logger.info("Shutdown signal received, finishing current item...")
-            self._shutdown_requested = True
+        # Let providers (Gemini, OpenRouter) surface waiting state to
+        # ProgressManager when they sleep on rate-limit/quota.
+        # ProviderFactory exposes its sub-providers as ``_providers`` (dict).
+        self._attach_progress_to_providers()
 
-        signal.signal(signal.SIGTERM, handle_shutdown)
-        signal.signal(signal.SIGINT, handle_shutdown)
+    def _attach_progress_to_providers(self) -> None:
+        """Wire ProgressManager into every concrete provider behind the factory.
+
+        Walks ``self.provider`` (which may be the factory or a bare provider)
+        plus any sub-providers held by a factory under ``_providers``.
+        """
+        def _attach(target):
+            if target is not None and hasattr(target, "attach_progress_manager"):
+                target.attach_progress_manager(self.progress)
+
+        _attach(self.provider)
+        sub_dict = getattr(self.provider, "_providers", None)
+        if isinstance(sub_dict, dict):
+            for sub in sub_dict.values():
+                _attach(sub)
+
+    @property
+    def _shutdown_requested(self) -> bool:
+        return shutdown.is_requested()
 
     @abstractmethod
     def create_prompt(self, item: Dict) -> str:
@@ -238,19 +255,38 @@ class BaseSynthesizer(ABC):
     def run(self, save_interval: int = 5) -> None:
         """Run continuous synthesis loop.
 
+        Stops cleanly when any of these is true:
+          - SIGTERM/SIGINT received (``shutdown.is_requested()``)
+          - ``config.synthesis.target_rows`` is set and ``total_generated`` reaches it
+          - all topics have hit ``questions_per_topic``
+
         Args:
             save_interval: Save progress every N items
         """
         topics = self.get_topics()
         total_topics = len(topics)
         items_per_topic = self.config.synthesis.questions_per_topic
+        target_rows = self.config.synthesis.target_rows or 0
 
-        self.logger.info(f"Starting synthesis: {total_topics} topics, {items_per_topic} items each")
-        self.progress.show_progress(total_topics * items_per_topic)
+        if target_rows > 0:
+            self.logger.info(
+                f"Starting synthesis: target={target_rows:,} rows "
+                f"({total_topics} topics × up to {items_per_topic} items each)"
+            )
+        else:
+            self.logger.info(f"Starting synthesis: {total_topics} topics, {items_per_topic} items each")
+        self.progress.show_progress(target_rows or total_topics * items_per_topic)
 
         for topic_idx, topic in enumerate(topics):
             if self._shutdown_requested:
                 self.logger.info("Shutdown requested, stopping")
+                break
+
+            if self._target_reached(target_rows):
+                self.logger.info(
+                    f"Target {target_rows:,} rows reached "
+                    f"({self.progress.progress_data['total_generated']:,} generated) — stopping"
+                )
                 break
 
             self.logger.info(f"Processing topic {topic_idx + 1}/{total_topics}: {topic}")
@@ -267,6 +303,8 @@ class BaseSynthesizer(ABC):
             items_generated = 0
             while items_generated < items_per_topic - completed:
                 if self._shutdown_requested:
+                    break
+                if self._target_reached(target_rows):
                     break
 
                 item = {'topic': topic}
@@ -294,7 +332,13 @@ class BaseSynthesizer(ABC):
             self.progress.save()
 
         self.logger.info("Synthesis complete")
-        self.progress.show_progress(total_topics * items_per_topic)
+        self.progress.show_progress(target_rows or total_topics * items_per_topic)
+
+    def _target_reached(self, target_rows: int) -> bool:
+        """True when a row target is configured and we've hit it."""
+        if target_rows <= 0:
+            return False
+        return self.progress.progress_data.get('total_generated', 0) >= target_rows
 
     def _save_results(self, results: List[Dict], topic: str) -> None:
         """Save results (to be overridden by subclasses).
