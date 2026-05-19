@@ -1,15 +1,43 @@
-"""Multi-instance coordination using file-based locking."""
+"""Multi-instance coordination using file-based locking.
+
+The locking primitive (``FileLock`` below) uses ``fcntl.flock`` on POSIX
+systems and ``msvcrt.locking`` on Windows so the same API works in CI on
+all three OSes — the synthesizer is primarily run inside a Linux container,
+but the unit tests must import cleanly on Windows runners too.
+"""
 
 import os
+import sys
 import json
 import time
-import fcntl
 import socket
 from pathlib import Path
 from datetime import datetime, timedelta
 from typing import Optional, Dict, Any, List
 
 from ..core.logger import get_logger
+
+_IS_WINDOWS = sys.platform == "win32"
+if _IS_WINDOWS:
+    import msvcrt  # type: ignore[import]
+
+    def _acquire(fd):
+        # msvcrt locks N bytes from the current file position; rewind so we
+        # lock byte 0 (consistent target regardless of file contents).
+        fd.seek(0)
+        msvcrt.locking(fd.fileno(), msvcrt.LK_NBLCK, 1)
+
+    def _release(fd):
+        fd.seek(0)
+        msvcrt.locking(fd.fileno(), msvcrt.LK_UNLCK, 1)
+else:
+    import fcntl  # type: ignore[import]
+
+    def _acquire(fd):
+        fcntl.flock(fd.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+
+    def _release(fd):
+        fcntl.flock(fd.fileno(), fcntl.LOCK_UN)
 
 
 class InstanceCoordinator:
@@ -233,16 +261,24 @@ class FileLock:
         start_time = time.time()
         while True:
             try:
-                fcntl.flock(self._fd.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                _acquire(self._fd)
                 return self
-            except BlockingIOError:
+            except (BlockingIOError, OSError) as e:
+                # Windows raises OSError(EACCES/EAGAIN); POSIX raises
+                # BlockingIOError. Treat both as "still locked".
+                if not _IS_WINDOWS and not isinstance(e, BlockingIOError):
+                    raise
                 if time.time() - start_time >= self.timeout:
                     raise
                 time.sleep(0.01)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self._fd:
-            fcntl.flock(self._fd.fileno(), fcntl.LOCK_UN)
+            try:
+                _release(self._fd)
+            except OSError:
+                # Best-effort unlock — file may have been closed already.
+                pass
             self._fd.close()
         return False
 
