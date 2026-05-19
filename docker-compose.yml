@@ -1,0 +1,65 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Data Synthesizer — local & VPS-friendly compose stack.
+#
+# One service: the long-running synthesizer + health endpoint on :8080.
+# State persists via bind-mounts to ./output and ./logs on the host.
+#
+# Quick start:
+#   cp .env.example .env       # fill in GEMINI_API_KEY / HF token / etc.
+#   docker compose up -d --build
+#   curl http://127.0.0.1:8080/health
+#
+# Edit config without rebuild — config.yaml and configs/ are mounted read-only:
+#   $EDITOR config.yaml
+#   docker compose restart synthesizer
+#
+# VPS deploy behind caddy-router (optional):
+#   The named network `data_synth_net` is declared `external: false` here so
+#   `docker compose up` creates it. To expose /health publicly via the shared
+#   caddy-router, change it to `external: true` after the first up, then add
+#   `data_synth_net` to caddy-router's docker-compose.yml networks list and a
+#   matching site block in its Caddyfile pointing at synthesizer:8080.
+# ─────────────────────────────────────────────────────────────────────────────
+services:
+  synthesizer:
+    build:
+      context: .
+    image: data-synthesizer:latest
+    container_name: data-synthesizer
+    restart: unless-stopped
+    # Defensive caps so a runaway worker can't OOM the rest of the VPS.
+    # Tuned for the workload's actual profile (idle ~150MB, peak <500MB
+    # during pandas/pyarrow chunk writes). Raise if you bump batch_size.
+    mem_limit: 1g
+    memswap_limit: 1g
+    cpus: 1.0
+    env_file:
+      - .env
+    environment:
+      HEALTH_PORT: "8080"
+      CONFIG_FILE: "config.yaml"
+    command: ["--config", "config.yaml"]
+    ports:
+      # Bound to loopback only — public access should go through caddy-router.
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ./output:/app/output
+      - ./logs:/app/logs
+      - ./config.yaml:/app/config.yaml:ro
+      - ./configs:/app/configs:ro
+    networks:
+      - data_synth_net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8080/health >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+
+networks:
+  # Fixed name so the shared caddy-router (separate compose project) can
+  # join this network as `external: true` without guessing the auto-prefix
+  # docker-compose would otherwise apply (`data_synthesizer_data_synth_net`).
+  data_synth_net:
+    driver: bridge
+    name: data_synth_net

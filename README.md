@@ -305,6 +305,89 @@ cp .env.example .env
 pytest -m unit -v
 ```
 
+### Docker (recommended for VPS / long-running deployments)
+
+The repo ships a `Dockerfile` and `docker-compose.yml` tuned for running the
+synthesizer as a continuous background service.
+
+```bash
+# 1. Configure secrets
+cp .env.example .env
+$EDITOR .env          # fill in GEMINI_API_KEY, HUGGINGFACE_TOKEN, etc.
+
+# 2. Adjust synthesis settings if needed
+$EDITOR config.yaml   # mounted read-only into the container
+
+# 3. Build and start
+docker compose up -d --build
+
+# 4. Verify
+curl http://127.0.0.1:8080/health
+curl http://127.0.0.1:8080/progress
+docker compose logs -f synthesizer
+```
+
+**Persistence** — bind-mounted from the host so state survives rebuilds:
+
+| Host path        | Container path     | Contents                              |
+|------------------|--------------------|---------------------------------------|
+| `./output`       | `/app/output`      | generated chunks, progress JSON       |
+| `./logs`         | `/app/logs`        | rotating log files                    |
+| `./config.yaml`  | `/app/config.yaml` | main config (read-only)               |
+| `./configs/`     | `/app/configs/`    | domain config templates (read-only)   |
+
+**Common operations:**
+
+```bash
+docker compose restart synthesizer       # reload after editing config.yaml
+docker compose logs --tail=200 -f        # follow logs
+docker compose down                      # stop (state preserved on host)
+docker compose pull && docker compose up -d --build   # update + redeploy
+```
+
+### Public access via shared caddy-router (HTTPS + Basic Auth)
+
+The repo is wired to plug into the VPS-level `caddy-router` (the same TLS
+terminator that fronts Folio / Kea / Kestrel). Container network is named
+`data_synth_net` with a fixed name so the router can join it as external.
+
+**One-time setup:**
+
+```bash
+# 1. DNS — point an A record at the VPS:
+#    A   synth.casava.space   <vps-ip>
+
+# 2. Generate a basic-auth password hash (caddy-router must be running):
+docker exec caddy-router caddy hash-password --plaintext 'pick-a-strong-password'
+# Copy the $2a$... hash that prints.
+
+# 3. Fill in .env (Data_Synthesizer/.env):
+#    SYNTH_DOMAIN=synth.casava.space
+#    SYNTH_BASIC_USER=admin
+#    SYNTH_BASIC_HASH=$2a$14$...    # quote/escape $ chars
+
+# 4. Start the synthesizer (creates the data_synth_net docker network):
+docker compose up -d --build
+
+# 5. Reload the router so it picks up the new env_file + network + site block:
+cd /root/caddy-router && docker compose up -d --force-recreate
+
+# 6. Verify:
+curl -u admin:pick-a-strong-password https://synth.casava.space/health
+```
+
+**What's already in place:**
+- `/root/caddy-router/Caddyfile` has a `{$SYNTH_DOMAIN:synth.casava.space}` block
+  proxying to `synthesizer:8080`, gated by `SYNTH_BASIC_USER` / `SYNTH_BASIC_HASH`.
+- `/root/caddy-router/docker-compose.yml` joins `data_synth_net` and loads
+  `/root/Data_Synthesizer/.env` for those vars.
+- TLS is automatic via Let's Encrypt (uses the existing `CADDY_ACME_EMAIL`).
+
+**To keep the synthesizer private** (loopback only, no domain): skip the
+caddy-router edits and don't fill in `SYNTH_DOMAIN`. The `127.0.0.1:8080`
+port binding in `docker-compose.yml` is still available for SSH-tunneled
+access.
+
 ### GCP Free Tier VM Setup
 
 ```bash

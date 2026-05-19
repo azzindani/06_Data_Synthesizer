@@ -45,3 +45,7 @@ Thumbs.db
 # Project-specific
 synthesis_progress.json
 legal_qa_deep_thinking_progress.json
+output/
+
+# Docker
+.docker/

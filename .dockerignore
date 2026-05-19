@@ -1,0 +1,56 @@
+# Keep build context small + reproducible.
+.git
+.github
+.gitignore
+.gitattributes
+
+# Local Python state
+__pycache__
+*.py[cod]
+*$py.class
+.pytest_cache
+.coverage
+htmlcov
+*.cover
+.venv
+venv
+env
+ENV
+build
+dist
+*.egg-info
+
+# Local runtime state (bind-mount instead)
+output
+logs
+*.log
+synthesis_progress.json
+legal_qa_deep_thinking_progress.json
+
+# Tests + notebooks aren't needed at runtime
+tests
+notebooks
+
+# Secrets — mount at runtime, never bake into the image
+.env
+.env.*
+!.env.example
+
+# Docker itself
+Dockerfile
+.dockerignore
+docker-compose.yml
+docker-compose.*.yml
+
+# Editor / OS junk
+.idea
+.vscode
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Claude tooling
+.claude
+CLAUDE.md
+WORKFLOW.md
