@@ -38,6 +38,12 @@ services:
     environment:
       HEALTH_PORT: "8080"
       CONFIG_FILE: "config.yaml"
+      # Set to "1" to skip the worker and serve only /health + /progress.
+      # Useful for first deploys before real API keys are configured:
+      # caddy can provision TLS and you can verify the routing end-to-end
+      # without the container restart-looping on validation errors. Default
+      # 0 = full worker.
+      SYNTH_HEALTH_ONLY: ${SYNTH_HEALTH_ONLY:-0}
     command: ["--config", "config.yaml"]
     ports:
       # Bound to loopback only — public access should go through caddy-router.
@@ -57,9 +63,11 @@ services:
       retries: 3
 
 networks:
-  # Fixed name so the shared caddy-router (separate compose project) can
-  # join this network as `external: true` without guessing the auto-prefix
-  # docker-compose would otherwise apply (`data_synthesizer_data_synth_net`).
+  # External network — created out-of-band so the shared caddy-router can
+  # reach this service. Create once on the host with:
+  #   docker network create data_synth_net
+  # Then both this compose and /root/caddy-router/docker-compose.yml join
+  # it as external (no chicken-and-egg about which project owns it).
   data_synth_net:
-    driver: bridge
+    external: true
     name: data_synth_net

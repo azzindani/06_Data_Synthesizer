@@ -30,9 +30,15 @@ echo "[entrypoint] starting health server on :${HEALTH_PORT}"
 python scripts/health_check.py --port "${HEALTH_PORT}" &
 HEALTH_PID=$!
 
-echo "[entrypoint] starting synthesizer: scripts/run.py $*"
-python scripts/run.py "$@" &
-WORKER_PID=$!
+if [ "${SYNTH_HEALTH_ONLY:-0}" = "1" ]; then
+  echo "[entrypoint] SYNTH_HEALTH_ONLY=1 — skipping worker; serving health only"
+  echo "[entrypoint] (set SYNTH_HEALTH_ONLY=0 in .env and recreate to start the worker)"
+  WORKER_PID="${HEALTH_PID}"  # wait on the health server instead
+else
+  echo "[entrypoint] starting synthesizer: scripts/run.py $*"
+  python scripts/run.py "$@" &
+  WORKER_PID=$!
+fi
 
 # Exit when the worker exits; propagate its status.
 wait "${WORKER_PID}"
