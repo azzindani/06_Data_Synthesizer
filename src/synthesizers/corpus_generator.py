@@ -238,12 +238,12 @@ DOCUMENT:"""
             self.logger.info(f"Saved: {local_path}")
 
         if output_type in ['huggingface', 'both']:
+            from huggingface_hub import upload_file
+
+            # try/finally so a failed upload doesn't leak parquet files in /tmp.
+            temp_path = f"/tmp/{filename}"
             try:
-                from huggingface_hub import upload_file
-
-                temp_path = f"/tmp/{filename}"
                 df.to_parquet(temp_path, index=False)
-
                 upload_file(
                     path_or_fileobj=temp_path,
                     path_in_repo=filename,
@@ -252,12 +252,14 @@ DOCUMENT:"""
                     token=self.config.output.huggingface_token,
                     commit_message=f"Corpus: {doc_type} - {len(results)} docs"
                 )
-
-                os.remove(temp_path)
                 self.logger.info(f"Uploaded: {filename}")
-
             except Exception as e:
                 self.logger.error(f"Upload failed: {e}")
+            finally:
+                try:
+                    os.remove(temp_path)
+                except OSError:
+                    pass
 
 
 if __name__ == "__main__":

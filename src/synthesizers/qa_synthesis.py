@@ -134,14 +134,13 @@ FORMAT (JSON array only, no additional text):
             topic: Topic name for commit message
             count: Number of items
         """
+        from huggingface_hub import upload_file
+
+        # Save to temp file; cleanup is in finally so a failed upload doesn't
+        # leak parquet files into /tmp over a long-running cron job.
+        temp_path = f"/tmp/{filename}"
         try:
-            from huggingface_hub import upload_file
-
-            # Save to temp file
-            temp_path = f"/tmp/{filename}"
             df.to_parquet(temp_path, index=False)
-
-            # Upload
             upload_file(
                 path_or_fileobj=temp_path,
                 path_in_repo=filename,
@@ -150,17 +149,14 @@ FORMAT (JSON array only, no additional text):
                 token=self.config.output.huggingface_token,
                 commit_message=f"QA synthesis: {topic} - {count} pairs"
             )
-
             self.logger.info(f"Uploaded to HF: {filename}")
-
-            # Cleanup
-            try:
-                os.remove(temp_path)
-            except:
-                pass
-
         except Exception as e:
             self.logger.error(f"Failed to upload to HF: {e}")
+        finally:
+            try:
+                os.remove(temp_path)
+            except OSError:
+                pass
 
 
 if __name__ == "__main__":

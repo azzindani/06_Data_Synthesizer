@@ -33,9 +33,14 @@ class ProgressManager:
             self.hf_token = ""
             self.local_path = "./output"
 
-        # Initialize progress data
+        # Initialize progress data.
+        # ``processed_items`` is held as a ``set`` in memory so the
+        # is_processed() check used at the top of every synthesize_item is
+        # O(1) instead of O(n). At 100k items the previous list-based "in"
+        # check was the dominant CPU cost AND the cost was quadratic. The
+        # set is serialised as a sorted list on save() for stable JSON.
         self.progress_data = {
-            'processed_items': [],
+            'processed_items': set(),
             'processed_topics': {},
             'current_item': None,
             'total_processed': 0,
@@ -67,7 +72,7 @@ class ProgressManager:
             try:
                 with open(local_file, 'r') as f:
                     saved = json.load(f)
-                    self.progress_data.update(saved)
+                    self._merge_loaded(saved)
                 self.logger.info(f"Progress loaded from local: {self.progress_data['total_processed']} items")
                 loaded = True
             except Exception as e:
@@ -85,7 +90,7 @@ class ProgressManager:
                 )
                 with open(progress_path, 'r') as f:
                     saved = json.load(f)
-                    self.progress_data.update(saved)
+                    self._merge_loaded(saved)
                 self.logger.info(f"Progress loaded from HF: {self.progress_data['total_processed']} items")
                 loaded = True
             except Exception as e:
@@ -96,6 +101,17 @@ class ProgressManager:
             self.progress_data['start_time'] = datetime.now().isoformat()
             self.logger.info("Starting fresh progress tracking")
 
+    def _merge_loaded(self, saved: Dict) -> None:
+        """Merge a freshly-loaded JSON blob into ``progress_data``.
+
+        Converts the JSON ``processed_items`` list back to a set (the
+        on-disk format must be a list since JSON has no set type).
+        """
+        if 'processed_items' in saved and isinstance(saved['processed_items'], list):
+            saved = dict(saved)  # don't mutate caller's dict
+            saved['processed_items'] = set(saved['processed_items'])
+        self.progress_data.update(saved)
+
     def save(self, upload_to_hf: bool = True) -> None:
         """Save progress to storage.
 
@@ -104,8 +120,16 @@ class ProgressManager:
         """
         self.progress_data['last_update'] = datetime.now().isoformat()
 
+        # Serialise the processed_items set as a sorted list so the JSON
+        # output is stable (diffable across runs). Sort once per save —
+        # negligible vs the file write itself.
+        snapshot = dict(self.progress_data)
+        items = snapshot.get('processed_items')
+        if isinstance(items, set):
+            snapshot['processed_items'] = sorted(items)
+
         # Convert numpy/pandas types to native Python
-        clean_data = self._convert_types(self.progress_data)
+        clean_data = self._convert_types(snapshot)
 
         # Save locally
         local_dir = Path(self.local_path)
@@ -165,8 +189,11 @@ class ProgressManager:
             item_id: Unique identifier for the item
             stats: Optional statistics about the processed item
         """
-        if item_id not in self.progress_data['processed_items']:
-            self.progress_data['processed_items'].append(item_id)
+        items = self.progress_data['processed_items']
+        # Set.add is O(1) and idempotent — no need for an "in" check first.
+        before = len(items)
+        items.add(item_id)
+        if len(items) > before:
             self.progress_data['total_processed'] += 1
 
         if stats:
@@ -304,9 +331,17 @@ class ProgressManager:
             print(f"Quality: {quality}")
 
     def get_resume_point(self) -> Optional[str]:
-        """Get the last processed item for resuming."""
+        """Get a processed item for resuming.
+
+        ``processed_items`` is a set (unordered) so we return the
+        lexicographically last element rather than insertion-order last.
+        The synthesizer doesn't depend on insertion order — it uses
+        ``is_processed()`` to skip already-done items regardless.
+        """
         items = self.progress_data['processed_items']
-        return items[-1] if items else None
+        if not items:
+            return None
+        return max(items) if isinstance(items, set) else items[-1]
 
 
 if __name__ == "__main__":

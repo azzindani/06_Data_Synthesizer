@@ -1,10 +1,17 @@
 """Cost tracking for LLM API usage."""
 
+from collections import deque
 from dataclasses import dataclass, field
 from typing import Dict, Any, List
 from datetime import datetime
 
 from ..core.logger import get_logger
+
+# Per-request records are only used by ``get_recent_records(N)``. Capping
+# the buffer keeps memory flat over a 100k+ request cron run — older
+# records are dropped on overflow; the running totals dict keeps the
+# aggregates that actually matter.
+_RECORDS_BUFFER_SIZE = 1000
 
 
 @dataclass
@@ -65,7 +72,11 @@ class CostTracker:
         """
         self.logger = get_logger(__name__)
         self.pricing = pricing or DEFAULT_PRICING
-        self.records: List[UsageRecord] = []
+        # Bounded ring buffer — preserves the last N records for
+        # get_recent_records() while keeping memory flat regardless of run
+        # length. The totals dict below remains the source of truth for
+        # aggregate stats.
+        self.records: "deque[UsageRecord]" = deque(maxlen=_RECORDS_BUFFER_SIZE)
 
         # Running totals
         self.totals = {
@@ -167,7 +178,11 @@ class CostTracker:
         Returns:
             List of record dictionaries
         """
-        recent = self.records[-limit:] if len(self.records) > limit else self.records
+        # deque doesn't support slicing — materialise just the tail.
+        if len(self.records) > limit:
+            recent = list(self.records)[-limit:]
+        else:
+            recent = list(self.records)
         return [
             {
                 'timestamp': r.timestamp,
